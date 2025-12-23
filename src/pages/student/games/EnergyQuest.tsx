@@ -596,14 +596,14 @@ export default function EnergyQuest() {
               </p>
             </div>
             <div>
-              <h3 className="font-bold text-gray-800 mb-2">🕹 How to Play</h3>
-              <p className="text-sm text-gray-700">
+              <h3 className="font-bold text-foreground mb-2">🕹 How to Play</h3>
+              <p className="text-sm text-foreground/80">
                 Release water to spin the turbine. Watch it power the generator. More flow = more power = more houses lit!
               </p>
             </div>
             <div>
-              <h3 className="font-bold text-gray-800 mb-2">💡 What You Learn</h3>
-              <p className="text-sm text-gray-700">
+              <h3 className="font-bold text-foreground mb-2">💡 What You Learn</h3>
+              <p className="text-sm text-foreground/80">
                 Energy never disappears—it just changes form. Water energy becomes motion, then electricity!
               </p>
             </div>
