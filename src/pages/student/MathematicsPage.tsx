@@ -25,15 +25,6 @@ import { useState } from "react";
 
 const mathGames = [
   {
-    title: "Equation Balance",
-    description: "Master linear equations by keeping both sides of the scale equal",
-    icon: Scale,
-    reward: 100,
-    difficulty: "easy" as const,
-    status: "available" as const,
-    gameId: "balance",
-  },
-  {
     title: "Fraction Forge",
     description: "Build fractions perfectly by combining pieces of the whole",
     icon: PieChart,
@@ -41,33 +32,6 @@ const mathGames = [
     difficulty: "easy" as const,
     status: "available" as const,
     gameId: "fractions",
-  },
-  {
-    title: "Pattern Lock",
-    description: "Unlock the gate by predicting the next number in the sequence",
-    icon: Lock,
-    reward: 105,
-    difficulty: "medium" as const,
-    status: "available" as const,
-    gameId: "lock",
-  },
-  {
-    title: "Geometry Builder",
-    description: "Build efficient shapes with the exact area and minimal perimeter",
-    icon: Square,
-    reward: 120,
-    difficulty: "medium" as const,
-    status: "available" as const,
-    gameId: "geometry",
-  },
-  {
-    title: "Probability Run",
-    description: "Choose wisely between safe and risky paths based on probability",
-    icon: Zap,
-    reward: 125,
-    difficulty: "hard" as const,
-    status: "available" as const,
-    gameId: "probability",
   },
   {
     title: "Pattern Master",
