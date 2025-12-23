@@ -117,6 +117,7 @@ export default function MoleculeBuilder() {
     bondedAtoms: [],
     selectedAtom: null,
     isComplete: false,
+    showInvalidFeedback: false,
   });
 
   const currentChallenge = CHALLENGES[gameState.currentChallengeIndex];
