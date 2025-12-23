@@ -379,6 +379,7 @@ export default function FinanceSubjectPage() {
   const [selectedGame, setSelectedGame] = useState<GameCard | null>(null);
   const [showIntro, setShowIntro] = useState(false);
   const [playingGame, setPlayingGame] = useState<GameCard | null>(null);
+  const [activeModule, setActiveModule] = useState<ActiveLearningModule | null>(null);
   const totalProgress = 65;
 
   const handlePlayGame = (game: GameCard) => {
