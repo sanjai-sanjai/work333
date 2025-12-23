@@ -122,6 +122,10 @@ export default function MathematicsPage() {
         xpEarned={0}
       >
         <div className="slide-up" style={{ animationDelay: "150ms" }}>
+          <MathematicsActiveLearning />
+        </div>
+
+        <div className="slide-up" style={{ animationDelay: "200ms" }}>
           <h3 className="mb-4 font-heading font-semibold">Gamified Learning Missions</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Master mathematical concepts through interactive puzzle games. Each game teaches one key concept through play.
