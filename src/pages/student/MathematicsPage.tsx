@@ -8,16 +8,26 @@ import {
   ProbabilityRun,
   PatternMaster,
   VillageBudgetPlanner,
+  MathHeist,
+  GroceryMarket,
+  DailyMathSpin,
+  PatternMasterGame,
+  FarmYieldCalculator,
 } from "@/components/games";
-import { 
-  Calculator, 
-  Scale, 
-  PieChart, 
-  Lock, 
-  Square, 
-  Zap, 
-  Puzzle, 
-  PiggyBank 
+import {
+  Calculator,
+  Scale,
+  PieChart,
+  Lock,
+  Square,
+  Zap,
+  Puzzle,
+  PiggyBank,
+  Vault,
+  ShoppingCart,
+  Loader,
+  BarChart3,
+  Sprout,
 } from "lucide-react";
 import { useState } from "react";
 
