@@ -36,6 +36,16 @@
     "logout": "لاگ آؤٹ",
     "settings": "ترتیبات"
   },
+  "sync": {
+    "lastSynced": "آخری ہم وقت سازی",
+    "syncing": "ہم وقت سازی ہو رہی ہے...",
+    "syncedUpToDate": "✅ تازہ ترین کے مطابق سنک ہو گیا ہے",
+    "readyToSync": "سنک کے لیے تیار",
+    "justNow": "ابھی ابھی",
+    "unknown": "کبھی سنک نہیں ہوا",
+    "offline": "آف لائن — کنیکٹ ہونے پر سنک کیا جائے گا",
+    "languageChanged": "زبان اردو میں تبدیل کر دی گئی ہے"
+  },
   "languages": {
     "english": "English",
     "hindi": "हिंदी",
