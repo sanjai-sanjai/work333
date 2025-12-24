@@ -176,7 +176,40 @@
     "noRewardsInCategory": "No rewards in this category yet",
     "keepLearningKeepEarning": "Keep Learning, Keep Earning!",
     "redeemSuccess": "🎉 You redeemed {{name}}!",
-    "needMoreCoins": "Need {{needed}} more EduCoins!"
+    "needMoreCoins": "Need {{needed}} more EduCoins!",
+    "almostThere": "Almost there!",
+    "locked": "Locked",
+    "redeem": "Redeem",
+    "earn": "Earn",
+    "more": "more",
+    "transactionHistory": "Transaction History",
+    "noTransactions": "No transactions yet",
+    "completeTasksToEarnCoins": "Complete games and tasks to earn EduCoins!",
+    "backToRewards": "Back to Rewards",
+    "viewHistory": "View History",
+    "motivationalMessage": "Every task, game, and achievement brings you closer to rewards that matter—for you, your family, and your village.",
+    "filters": {
+      "all": "All Rewards",
+      "stationery": "Stationery",
+      "study_purpose": "Study Purpose",
+      "household_needs": "Household Needs",
+      "farming_needs": "Farming Needs",
+      "premium": "Premium",
+      "study_kits": "Study Kits",
+      "upskilling_books": "Upskilling Books",
+      "community_building": "Community Building"
+    },
+    "filterDescriptions": {
+      "all": "Browse all available rewards",
+      "stationery": "Quality writing & drawing supplies",
+      "study_purpose": "Workspace & study essentials",
+      "household_needs": "Daily essentials for families",
+      "farming_needs": "Tools for agricultural success",
+      "premium": "Aspirational long-term goals",
+      "study_kits": "Hands-on learning kits",
+      "upskilling_books": "Knowledge for growth",
+      "community_building": "Assets for village development"
+    }
   },
   "physics": {
     "title": "Physics",
@@ -186,12 +219,20 @@
       "voltageTraP_description": "Navigate circuits and understand electricity",
       "waveRider": "Wave Rider",
       "waveRider_description": "Master waves and oscillations",
-      "forceBuilder": "Force Builder",
-      "forceBuilder_description": "Build and apply forces to move objects",
+      "forceBuilder": {
+        "title": "Force Builder",
+        "description": "Build and apply forces to move objects",
+        "instruction": "Apply the right forces to move the objects to the target!"
+      },
       "gravityDrop": "Gravity Drop",
       "gravityDrop_description": "Experience the power of gravity",
       "energyQuest": "Energy Quest",
-      "energyQuest_description": "Transform and conserve energy"
+      "energyQuest_description": "Transform and conserve energy",
+      "projectileMotion": {
+        "title": "Projectile Motion",
+        "description": "Launch a cannon at the perfect angle and speed to hit the target",
+        "instruction": "Aim and fire the cannon to hit the targets!"
+      }
     }
   },
   "chemistry": {
@@ -254,6 +295,11 @@
         "title": "System Builder",
         "description": "Build systems with correct sequences",
         "instruction": "Every system has steps that MUST happen in the RIGHT ORDER"
+      },
+      "villageLightUp": {
+        "title": "Village Light-Up",
+        "description": "Rotate wire tiles to complete circuits and power the lights",
+        "instruction": "Complete the electrical circuit by rotating tiles to light up all the houses!"
       }
     },
     "activeLearning": {

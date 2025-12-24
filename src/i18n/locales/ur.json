@@ -107,6 +107,7 @@
     }
   },
   "rewards": {
+    "title": "انعامات",
     "rewardsMarketplace": "انعامات کی بازار",
     "balance": "توازن",
     "eduCoins": "تعلیمی سکے",
@@ -119,7 +120,40 @@
     "noRewardsInCategory": "اس زمرے میں کوئی انعام نہیں",
     "keepLearningKeepEarning": "سیکھتے رہیں، کمائتے رہیں!",
     "redeemSuccess": "🎉 آپ نے {{name}} استعمال کیا!",
-    "needMoreCoins": "{{needed}} مزید تعلیمی سکے درکار ہیں!"
+    "needMoreCoins": "{{needed}} مزید تعلیمی سکے درکار ہیں!",
+    "almostThere": "قریب قریب!",
+    "locked": "قفل",
+    "redeem": "استعمال کریں",
+    "earn": "حاصل کریں",
+    "more": "مزید",
+    "transactionHistory": "لین دین کی تاریخ",
+    "noTransactions": "اب تک کوئی لین دین نہیں",
+    "completeTasksToEarnCoins": "تعلیمی سکے حاصل کرنے کے لیے گیمز اور کام مکمل کریں!",
+    "backToRewards": "انعامات پر واپس جائیں",
+    "viewHistory": "تاریخ دیکھیں",
+    "motivationalMessage": "ہر کام، گیم اور کامیابی آپ کو—آپ کے، آپ کے خاندان اور آپ کے گاؤں کے لیے—اہم انعامات کے قریب لاتی ہے۔",
+    "filters": {
+      "all": "تمام انعامات",
+      "stationery": "اسٹیشنری",
+      "study_purpose": "مطالعہ کے مقصد",
+      "household_needs": "گھریلو ضروریات",
+      "farming_needs": "زرعی ضروریات",
+      "premium": "پریمیم",
+      "study_kits": "مطالعہ کی کٹس",
+      "upskilling_books": "مہارت میں اضافہ کی کتابیں",
+      "community_building": "کمیونٹی کی تعمیر"
+    },
+    "filterDescriptions": {
+      "all": "تمام دستیاب انعامات دیکھیں",
+      "stationery": "معیار کی لکھنے اور ڈرائنگ کی چیزیں",
+      "study_purpose": "کام کی جگہ اور مطالعہ کی ضروریات",
+      "household_needs": "خاندانوں کے لیے روزمرہ کی ضروریات",
+      "farming_needs": "زراعی کامیابی کے اوزار",
+      "premium": "خوائش رکھنے والے طویل مدتی اہداف",
+      "study_kits": "عملی سیکھنے کی کٹ",
+      "upskilling_books": "ترقی کے لیے علم",
+      "community_building": "گاؤں کی ترقی کی دولت"
+    }
   },
   "common": {
     "error": "خرابی",
