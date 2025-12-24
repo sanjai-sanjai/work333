@@ -40,7 +40,7 @@ const levels: GameLevel[] = [
     coins: 25,
     status: "available",
     stars: 0,
-    route: "/student/technology/level/1"
+    route: "/learn/technology/active-learning"
   },
   {
     id: "2",
@@ -51,7 +51,7 @@ const levels: GameLevel[] = [
     xp: 150,
     coins: 35,
     status: "available",
-    route: "/student/technology/level/2"
+    route: "/learn/technology/active-learning"
   },
   {
     id: "3",
@@ -62,7 +62,7 @@ const levels: GameLevel[] = [
     xp: 200,
     coins: 50,
     status: "available",
-    route: "/student/technology/level/3"
+    route: "/learn/technology/active-learning"
   }
 ];
 
