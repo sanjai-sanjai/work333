@@ -381,7 +381,7 @@ export default function TasksPage() {
 
         {/* CATEGORY FILTERS */}
         <div className="slide-up space-y-3" style={{ animationDelay: "50ms" }}>
-          <p className="text-sm font-medium text-foreground px-1">Filter by category</p>
+          <p className="text-sm font-medium text-foreground px-1">{t('common.dashboard')}</p>
           <div className="flex gap-2 overflow-x-auto pb-2">
             {(["all", "family", "village", "subject", "personal"] as const).map((filter) => {
               const isAll = filter === "all";
@@ -399,7 +399,7 @@ export default function TasksPage() {
                       : "glass-card border border-border text-muted-foreground hover:border-primary/50"
                   }`}
                 >
-                  {isAll ? "All Tasks" : config?.label}
+                  {isAll ? t('tasks.yourTasks') : getCategoryLabel(filter)}
                 </button>
               );
             })}
