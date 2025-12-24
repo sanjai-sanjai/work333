@@ -295,9 +295,9 @@ export function SyncPopupModal({
                   key={item.id}
                   className={cn(
                     'px-4 py-3 rounded-lg flex items-center gap-3 transition-all duration-500',
-                    isCompleted && 'bg-green-500/20 border border-green-500/30',
-                    isCurrent && isSyncing && 'bg-purple-500/20 border border-purple-500/30',
-                    !isCompleted && !isCurrent && 'bg-slate-700/20 border border-slate-700/20',
+                    isCompleted && 'bg-green-500/20 border border-green-500/40 shadow-sm',
+                    isCurrent && isSyncing && 'bg-purple-500/25 border border-purple-500/40 shadow-sm',
+                    !isCompleted && !isCurrent && 'bg-slate-700/15 border border-slate-700/10',
                   )}
                   style={{
                     opacity: isCompleted || isSyncing ? 1 : 0.5,
