@@ -61,10 +61,6 @@ export default function VillageSkillsPage() {
       xpEarned={75}
     >
       <div className="slide-up" style={{ animationDelay: "150ms" }}>
-        <VillageSkillsActiveLearning />
-      </div>
-
-      <div className="slide-up" style={{ animationDelay: "200ms" }}>
         <div className="mb-4 rounded-xl border border-secondary/30 bg-secondary/10 p-4">
           <p className="text-sm">
             🌱 Complete village tasks to earn bonus PlayCoins and help your community!
