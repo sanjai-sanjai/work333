@@ -253,7 +253,11 @@ export default function RewardsPage() {
                     <p className="font-heading text-2xl font-bold text-primary">
                       {spent.toLocaleString()}
                     </p>
-                    <EduCoin size="sm" imgClassName="edu-coin-spent-sm" />
+                    <EduCoin
+                      size="sm"
+                      imgClassName="edu-coin-spent-sm"
+                      src="https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2F461226e32d554b2c97f6e5a78d92d2bd"
+                    />
                   </div>
                 </div>
               </div>
