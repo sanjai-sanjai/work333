@@ -219,12 +219,20 @@
       "voltageTraP_description": "Navigate circuits and understand electricity",
       "waveRider": "Wave Rider",
       "waveRider_description": "Master waves and oscillations",
-      "forceBuilder": "Force Builder",
-      "forceBuilder_description": "Build and apply forces to move objects",
+      "forceBuilder": {
+        "title": "Force Builder",
+        "description": "Build and apply forces to move objects",
+        "instruction": "Apply the right forces to move the objects to the target!"
+      },
       "gravityDrop": "Gravity Drop",
       "gravityDrop_description": "Experience the power of gravity",
       "energyQuest": "Energy Quest",
-      "energyQuest_description": "Transform and conserve energy"
+      "energyQuest_description": "Transform and conserve energy",
+      "projectileMotion": {
+        "title": "Projectile Motion",
+        "description": "Launch a cannon at the perfect angle and speed to hit the target",
+        "instruction": "Aim and fire the cannon to hit the targets!"
+      }
     }
   },
   "chemistry": {
@@ -287,6 +295,11 @@
         "title": "System Builder",
         "description": "Build systems with correct sequences",
         "instruction": "Every system has steps that MUST happen in the RIGHT ORDER"
+      },
+      "villageLightUp": {
+        "title": "Village Light-Up",
+        "description": "Rotate wire tiles to complete circuits and power the lights",
+        "instruction": "Complete the electrical circuit by rotating tiles to light up all the houses!"
       }
     },
     "activeLearning": {
