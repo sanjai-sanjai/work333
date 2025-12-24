@@ -140,7 +140,7 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
       case 'error':
         return 'text-red-400 hover:bg-red-500/15 border border-red-500/30 hover:border-red-500/50';
       default: // unsynced
-        return 'text-amber-500 hover:bg-amber-500/15 border border-amber-500/30 hover:border-amber-500/50 animate-pulse-subtle';
+        return 'text-red-500 hover:bg-red-500/15 border border-red-500/30 hover:border-red-500/50 animate-pulse-subtle';
     }
   };
 
