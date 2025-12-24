@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { RefreshCw, Cloud } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { useToast } from './use-toast';
@@ -61,20 +60,16 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
     return navigator.onLine;
   }, []);
 
-  // Handle button shake animation for offline state
-  const shakeButton = useCallback((element: HTMLElement | null) => {
-    if (!element) return;
-    element.classList.add('animate-shake');
-    setTimeout(() => {
-      element.classList.remove('animate-shake');
-    }, 500);
-  }, []);
-
   // Simulate sync operations sequentially
   const performSync = useCallback(async () => {
     if (!isOnline()) {
       const button = document.querySelector('[aria-label="Sync data"]');
-      shakeButton(button as HTMLElement);
+      if (button) {
+        button.classList.add('animate-shake');
+        setTimeout(() => {
+          button.classList.remove('animate-shake');
+        }, 500);
+      }
       toast({
         title: t('sync.noInternet'),
         description: t('sync.noInternetMessage'),
@@ -84,7 +79,7 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
     }
 
     if (isSyncingRef.current) {
-      return; // Prevent double-taps
+      return;
     }
 
     isSyncingRef.current = true;
@@ -99,57 +94,17 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
     }));
     setSyncItems(newSyncItems);
 
-    // Simulate sequential sync operations
     try {
-      // Step 1: User Progress (400ms interval as per spec)
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setSyncItems(prev => {
-        const updated = [...prev];
-        updated[0] = { ...updated[0], completed: true };
-        return updated;
-      });
+      // Simulate sequential sync operations (400ms interval)
+      await new Promise(resolve => setTimeout(resolve, 400));
 
-      // Step 2: Leaderboard Data
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setSyncItems(prev => {
-        const updated = [...prev];
-        updated[1] = { ...updated[1], completed: true };
-        return updated;
-      });
-
-      // Step 3: EduCoins Wallet
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setSyncItems(prev => {
-        const updated = [...prev];
-        updated[2] = { ...updated[2], completed: true };
-        return updated;
-      });
-
-      // Step 4: Subject Learning Progress
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setSyncItems(prev => {
-        const updated = [...prev];
-        updated[3] = { ...updated[3], completed: true };
-        return updated;
-      });
-
-      // Step 5: Tasks & Verifications
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setSyncItems(prev => {
-        const updated = [...prev];
-        updated[4] = { ...updated[4], completed: true };
-        return updated;
-      });
-
-      // All completed successfully
+      // All operations complete
       const now = new Date().toISOString();
       setLastSyncTime(now);
       localStorage.setItem('last_sync_time', now);
       localStorage.setItem('sync_status', 'synced');
       setSyncStatus('synced');
 
-      // Modal stays open - user must click the button to close
-      // Sound will play automatically in the modal when success state is reached
     } catch (error) {
       console.error('Sync failed:', error);
       setSyncStatus('error');
@@ -163,10 +118,9 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
         isSyncingRef.current = false;
       }, 3000);
     } finally {
-      // Only reset the syncing flag, don't close modal - user must click button
       isSyncingRef.current = false;
     }
-  }, [isOnline, shakeButton, syncItems, t, toast]);
+  }, [isOnline, syncItems, t, toast]);
 
   const handleSyncClick = useCallback(() => {
     performSync();
@@ -176,74 +130,30 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
     setShowModal(false);
   }, []);
 
-  const formatSyncTime = (timestamp: string) => {
-    try {
-      const date = new Date(timestamp);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-
-      if (diffMins === 0) return t('sync.justNow');
-      if (diffMins < 60) return `${diffMins}m ago`;
-
-      const diffHours = Math.floor(diffMins / 60);
-      if (diffHours < 24) return `${diffHours}h ago`;
-
-      const timeStr = date.toLocaleTimeString([], {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-
-      if (date.toDateString() === now.toDateString()) {
-        return `Today, ${timeStr}`;
-      }
-
-      const dateStr = date.toLocaleDateString([], {
-        month: 'short',
-        day: 'numeric',
-      });
-      return `${dateStr}, ${timeStr}`;
-    } catch {
-      return t('sync.unknown');
-    }
-  };
-
+  // Get button styling based on sync status
   const getButtonClasses = () => {
     switch (syncStatus) {
       case 'synced':
-        return 'text-green-500 hover:bg-green-500/15 border-green-500/30 hover:border-green-500/50';
+        return 'text-emerald-400 hover:bg-emerald-500/15 border border-emerald-500/30 hover:border-emerald-500/50';
       case 'syncing':
-        return 'text-blue-500 hover:bg-blue-500/15 border-blue-500/30 hover:border-blue-500/50';
+        return 'text-purple-400 hover:bg-purple-500/15 border border-purple-500/30 hover:border-purple-500/50';
       case 'error':
-        return 'text-red-500 hover:bg-red-500/15 border-red-500/30 hover:border-red-500/50';
+        return 'text-red-400 hover:bg-red-500/15 border border-red-500/30 hover:border-red-500/50';
       default: // unsynced
-        return 'text-red-500 hover:bg-red-500/15 border-red-500/30 hover:border-red-500/50';
-    }
-  };
-
-  const getIconColor = () => {
-    switch (syncStatus) {
-      case 'synced':
-        return 'text-green-500';
-      case 'syncing':
-        return 'text-blue-500';
-      case 'error':
-        return 'text-red-500';
-      default: // unsynced
-        return 'text-red-500';
+        return 'text-amber-500 hover:bg-amber-500/15 border border-amber-500/30 hover:border-amber-500/50 animate-pulse-subtle';
     }
   };
 
   const getTooltipText = () => {
     switch (syncStatus) {
       case 'synced':
-        return t('sync.allDataSynced');
+        return 'All data synced';
       case 'syncing':
         return t('sync.syncing');
       case 'error':
         return t('sync.syncFailed');
       default:
-        return t('sync.tooltip');
+        return 'Data not synced';
     }
   };
 
@@ -256,7 +166,7 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
       case 'error':
         return t('sync.syncFailed');
       default:
-        return lastSyncTime ? `${t('sync.lastSynced')}: ${formatSyncTime(lastSyncTime)}` : t('sync.readyToSync');
+        return 'Sync Data';
     }
   };
 
@@ -273,29 +183,61 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
           'inline-flex items-center gap-2',
           'px-3 sm:px-4',
           'h-10 rounded-lg',
-          'border transition-all duration-200',
-          'text-xs sm:text-sm font-medium',
+          'transition-all duration-200',
+          'text-xs sm:text-sm font-semibold',
           'disabled:opacity-60 disabled:cursor-not-allowed',
           'active:scale-95',
           getButtonClasses(),
           className
         )}
       >
-        {syncStatus === 'synced' ? (
-          <Cloud className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-        ) : (
-          <RefreshCw
-            className={cn(
-              'h-5 w-5 flex-shrink-0',
-              syncStatus === 'syncing' && 'animate-spin-smooth',
-              getIconColor()
-            )}
-            aria-hidden="true"
+        {/* Dual-arrow Sync Icon */}
+        <svg
+          className={cn(
+            'w-5 h-5 flex-shrink-0',
+            syncStatus === 'syncing' && 'animate-sync-rotate'
+          )}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          {/* Left arrow up */}
+          <path
+            d="M7 16V4m0 0L3 8m4-4l4 4"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           />
+          {/* Right arrow down */}
+          <path
+            d="M17 8v12m0 0l4-4m-4 4l-4-4"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+
+        {/* Status Badge for Success */}
+        {syncStatus === 'synced' && (
+          <svg
+            className="w-3 h-3 text-emerald-400"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 8L6 11L13 4"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         )}
+
         <span className={cn(
-          'hidden sm:inline whitespace-nowrap font-semibold',
-          getIconColor()
+          'hidden sm:inline whitespace-nowrap'
         )}>
           {displayText()}
         </span>
@@ -318,17 +260,32 @@ export function DataSyncStatus({ className }: DataSyncStatusProps) {
           75% { transform: translateX(4px); }
         }
 
-        @keyframes spin-smooth {
+        @keyframes sync-rotate {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse-subtle {
+          0%, 100% {
+            opacity: 1;
+            box-shadow: 0 0 0 0 rgba(217, 119, 6, 0);
+          }
+          50% {
+            opacity: 0.8;
+            box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+          }
         }
 
         .animate-shake {
           animation: shake 0.4s ease-in-out;
         }
 
-        .animate-spin-smooth {
-          animation: spin-smooth 1.5s linear infinite;
+        .animate-sync-rotate {
+          animation: sync-rotate 1.2s linear infinite;
+        }
+
+        .animate-pulse-subtle {
+          animation: pulse-subtle 6s ease-in-out infinite;
         }
       `}</style>
     </>
