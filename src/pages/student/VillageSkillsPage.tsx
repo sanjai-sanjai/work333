@@ -1,5 +1,6 @@
 import { SubjectLayout } from "@/components/student/SubjectLayout";
 import { GameMissionCard } from "@/components/student/GameMissionCard";
+import { VillageSkillsActiveLearning } from "@/components/active-learning/VillageSkillsActiveLearning";
 import { TreePine, Droplets, Wheat, Hammer, Heart, Recycle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -61,6 +62,10 @@ export default function VillageSkillsPage() {
       xpEarned={75}
     >
       <div className="slide-up" style={{ animationDelay: "150ms" }}>
+        <VillageSkillsActiveLearning />
+      </div>
+
+      <div className="slide-up" style={{ animationDelay: "200ms" }}>
         <div className="mb-4 rounded-xl border border-secondary/30 bg-secondary/10 p-4">
           <p className="text-sm">
             🌱 Complete village tasks to earn bonus PlayCoins and help your community!
@@ -78,7 +83,7 @@ export default function VillageSkillsPage() {
             </div>
           ))}
         </div>
-      </div>
-    </SubjectLayout>
-  );
-}
+        </div>
+      </SubjectLayout>
+    );
+  }

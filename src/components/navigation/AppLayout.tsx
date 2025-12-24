@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { HamburgerMenu } from "./HamburgerMenu";
 import { BottomTabBar } from "./BottomTabBar";
 import { AppBreadcrumb } from "./AppBreadcrumb";
-import { PlayCoinsDisplay } from "@/components/ui/play-coins-display";
+import { WalletBalanceHeader } from "@/components/ui/wallet-balance-header";
 import { useAuth } from "@/contexts/AuthContext";
 import { useWallet } from "@/contexts/WalletContext";
 import { cn } from "@/lib/utils";
@@ -58,9 +58,9 @@ export function AppLayout({
               )}
             </div>
 
-            {/* PlayCoins for students */}
+            {/* Wallet Balance for students */}
             {role === "student" && typeof displayCoins === "number" && (
-              <PlayCoinsDisplay amount={displayCoins} size="md" />
+              <WalletBalanceHeader balance={displayCoins} />
             )}
           </div>
 

@@ -82,9 +82,32 @@ export default function RewardsPage() {
 
   return (
     <AppLayout role="student" playCoins={currentBalance} title="Rewards Marketplace">
+      <style>{`
+        @media (max-width: 640px) {
+          .accent-blur-bg {
+            width: 249px !important;
+            height: 327px !important;
+          }
+          .edu-coin-balance-lg {
+            width: 30px !important;
+          }
+          .edu-coin-earned {
+            width: 20px !important;
+          }
+          .edu-coin-spent-sm {
+            width: 20px !important;
+          }
+          .edu-coin-summary img {
+            width: 25px !important;
+          }
+          .hero-coin-image {
+            margin: 0 auto !important;
+          }
+        }
+      `}</style>
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 px-4 py-6 pb-28 relative overflow-hidden">
         {/* Animated Background Decorations */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-40" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 opacity-40 accent-blur-bg" />
         <div className="absolute bottom-32 left-0 w-72 h-72 bg-primary/5 rounded-full blur-3xl -translate-x-1/2 opacity-40" />
         <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-secondary/5 rounded-full blur-3xl opacity-30" />
 
@@ -173,7 +196,7 @@ export default function RewardsPage() {
                         <h2 className="font-display text-4xl font-bold text-accent">
                           {currentBalance.toLocaleString()}
                         </h2>
-                        <EduCoin size="lg" />
+                        <EduCoin size="lg" imgClassName="edu-coin-balance-lg" />
                       </div>
                       <p className="text-sm text-muted-foreground mt-1">EduCoins</p>
                     </div>
@@ -181,18 +204,18 @@ export default function RewardsPage() {
                 </div>
                 <img
                   loading="lazy"
-                  srcSet="https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2Fb0343b7a8d4c4fe7b7f743644a091374"
+                  srcSet="https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=100 100w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=200 200w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=400 400w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=800 800w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=1200 1200w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=1600 1600w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789?width=2000 2000w, https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2Fbf3bd7389fad4f3289ccdf4eaf5e5789"
                   style={{
-                    aspectRatio: "1.31",
-                    objectFit: "cover",
+                    aspectRatio: "1.07",
+                    objectFit: "contain",
                     objectPosition: "center",
                     width: "100%",
-                    marginTop: "20px",
+                    marginLeft: "20px",
                     minHeight: "20px",
                     minWidth: "20px",
                     overflow: "hidden",
                   }}
-                  className="max-sm:max-w-[140px] max-sm:m-0 max-sm:ml-[7px]"
+                  className="max-sm:max-w-[140px] max-sm:m-0 max-sm:ml-[7px] hero-coin-image"
                 />
               </div>
 
@@ -205,7 +228,21 @@ export default function RewardsPage() {
                     <p className="font-heading text-2xl font-bold text-secondary">
                       {earned.toLocaleString()}
                     </p>
-                    <EduCoin size="sm" />
+                    <img
+                      alt="EduCoin"
+                      width="48"
+                      height="48"
+                      loading="lazy"
+                      src="https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2F461226e32d554b2c97f6e5a78d92d2bd"
+                      className="edu-coin-earned"
+                      style={{
+                        display: "block",
+                        aspectRatio: "1 / 1",
+                        filter: "drop-shadow(rgba(0, 0, 0, 0.04) 0px 10px 8px) drop-shadow(rgba(0, 0, 0, 0.1) 0px 4px 3px)",
+                        objectFit: "contain",
+                        width: "35px",
+                      }}
+                    />
                   </div>
                 </div>
 
@@ -216,7 +253,11 @@ export default function RewardsPage() {
                     <p className="font-heading text-2xl font-bold text-primary">
                       {spent.toLocaleString()}
                     </p>
-                    <EduCoin size="sm" />
+                    <EduCoin
+                      size="sm"
+                      imgClassName="edu-coin-spent-sm"
+                      src="https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2F461226e32d554b2c97f6e5a78d92d2bd"
+                    />
                   </div>
                 </div>
               </div>

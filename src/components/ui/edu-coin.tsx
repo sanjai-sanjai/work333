@@ -5,6 +5,8 @@ interface EduCoinProps {
   size?: "sm" | "md" | "lg" | "xl";
   animated?: boolean;
   className?: string;
+  imgClassName?: string;
+  src?: string;
   showLabel?: boolean;
 }
 
@@ -21,10 +23,14 @@ const sizeMap = {
  * Transparent PNG - blends with app theme
  * Scalable and consistent across the application
  */
+const DEFAULT_COIN_SRC = "https://cdn.builder.io/api/v1/image/assets%2Fa9d627de7a0c400a9a5045a9ca4a12ea%2F6df1eb74c5aa43698eea5229a2df81d4";
+
 export function EduCoin({
   size = "md",
   animated = false,
   className,
+  imgClassName,
+  src = DEFAULT_COIN_SRC,
   showLabel = false,
 }: EduCoinProps) {
   const dimension = sizeMap[size];
@@ -42,13 +48,14 @@ export function EduCoin({
       `}</style>
 
       <img
-        src="https://cdn.builder.io/api/v1/image/assets%2F5367439bd6874de29cc9e48538762737%2F92c4ed1bf9034018abbad640d29cbcb2"
+        src={src}
         alt="EduCoin"
         width={dimension}
         height={dimension}
         className={cn(
           "drop-shadow-lg flex-shrink-0",
-          animated && "edu-coin-animated"
+          animated && "edu-coin-animated",
+          imgClassName
         )}
         style={{
           aspectRatio: "1 / 1",

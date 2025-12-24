@@ -1,5 +1,6 @@
 import { SubjectLayout } from "@/components/student/SubjectLayout";
 import { GameMissionCard } from "@/components/student/GameMissionCard";
+import { EntrepreneurshipActiveLearning } from "@/components/active-learning/EntrepreneurshipActiveLearning";
 import { Lightbulb, Store, Users, BarChart3, Megaphone, Package } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -61,6 +62,10 @@ export default function EntrepreneurshipPage() {
       xpEarned={0}
     >
       <div className="slide-up" style={{ animationDelay: "150ms" }}>
+        <EntrepreneurshipActiveLearning />
+      </div>
+
+      <div className="slide-up" style={{ animationDelay: "200ms" }}>
         <div className="mb-4 rounded-xl border border-accent/30 bg-accent/10 p-4">
           <p className="text-sm text-accent-foreground">
             🔒 Complete 50% of Financial Literacy to unlock this subject!
@@ -81,7 +86,7 @@ export default function EntrepreneurshipPage() {
             </div>
           ))}
         </div>
-      </div>
-    </SubjectLayout>
-  );
-}
+        </div>
+      </SubjectLayout>
+    );
+  }

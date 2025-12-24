@@ -1,11 +1,8 @@
 import { SubjectLayout } from "@/components/student/SubjectLayout";
 import { GameMissionCard } from "@/components/student/GameMissionCard";
+import { MathematicsActiveLearning } from "@/components/active-learning/MathematicsActiveLearning";
 import {
-  EquationBalance,
   FractionForge,
-  PatternLock,
-  GeometryBuilder,
-  ProbabilityRun,
   PatternMaster,
   VillageBudgetPlanner,
   MathHeist,
@@ -16,11 +13,7 @@ import {
 } from "@/components/games";
 import {
   Calculator,
-  Scale,
   PieChart,
-  Lock,
-  Square,
-  Zap,
   Puzzle,
   PiggyBank,
   Vault,
@@ -33,15 +26,6 @@ import { useState } from "react";
 
 const mathGames = [
   {
-    title: "Equation Balance",
-    description: "Master linear equations by keeping both sides of the scale equal",
-    icon: Scale,
-    reward: 100,
-    difficulty: "easy" as const,
-    status: "available" as const,
-    gameId: "balance",
-  },
-  {
     title: "Fraction Forge",
     description: "Build fractions perfectly by combining pieces of the whole",
     icon: PieChart,
@@ -49,33 +33,6 @@ const mathGames = [
     difficulty: "easy" as const,
     status: "available" as const,
     gameId: "fractions",
-  },
-  {
-    title: "Pattern Lock",
-    description: "Unlock the gate by predicting the next number in the sequence",
-    icon: Lock,
-    reward: 105,
-    difficulty: "medium" as const,
-    status: "available" as const,
-    gameId: "lock",
-  },
-  {
-    title: "Geometry Builder",
-    description: "Build efficient shapes with the exact area and minimal perimeter",
-    icon: Square,
-    reward: 120,
-    difficulty: "medium" as const,
-    status: "available" as const,
-    gameId: "geometry",
-  },
-  {
-    title: "Probability Run",
-    description: "Choose wisely between safe and risky paths based on probability",
-    icon: Zap,
-    reward: 125,
-    difficulty: "hard" as const,
-    status: "available" as const,
-    gameId: "probability",
   },
   {
     title: "Pattern Master",
@@ -165,6 +122,10 @@ export default function MathematicsPage() {
         xpEarned={0}
       >
         <div className="slide-up" style={{ animationDelay: "150ms" }}>
+          <MathematicsActiveLearning />
+        </div>
+
+        <div className="slide-up" style={{ animationDelay: "200ms" }}>
           <h3 className="mb-4 font-heading font-semibold">Gamified Learning Missions</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Master mathematical concepts through interactive puzzle games. Each game teaches one key concept through play.
@@ -192,11 +153,7 @@ export default function MathematicsPage() {
       </SubjectLayout>
 
       {/* Game Components */}
-      {activeGame === "balance" && <EquationBalance onClose={handleGameClose} />}
       {activeGame === "fractions" && <FractionForge onClose={handleGameClose} />}
-      {activeGame === "lock" && <PatternLock onClose={handleGameClose} />}
-      {activeGame === "geometry" && <GeometryBuilder onClose={handleGameClose} />}
-      {activeGame === "probability" && <ProbabilityRun onClose={handleGameClose} />}
       {activeGame === "pattern-master" && <PatternMaster onClose={handleGameClose} />}
       {activeGame === "budget" && <VillageBudgetPlanner onClose={handleGameClose} />}
       {activeGame === "heist" && <MathHeist onClose={handleGameClose} />}

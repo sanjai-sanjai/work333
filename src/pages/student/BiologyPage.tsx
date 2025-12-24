@@ -1,5 +1,6 @@
 import { SubjectLayout } from "@/components/student/SubjectLayout";
 import { GameCard } from "@/components/ui/game-card";
+import { BiologyActiveLearning } from "@/components/active-learning/BiologyActiveLearning";
 import { Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -65,6 +66,10 @@ export default function BiologyPage() {
       xpEarned={180}
     >
       <div className="slide-up" style={{ animationDelay: "150ms" }}>
+        <BiologyActiveLearning />
+      </div>
+
+      <div className="slide-up" style={{ animationDelay: "200ms" }}>
         <h3 className="mb-4 font-heading font-semibold text-foreground">
           🎮 Gamified Learning
         </h3>
@@ -138,7 +143,7 @@ export default function BiologyPage() {
             </div>
           ))}
         </div>
-      </div>
-    </SubjectLayout>
-  );
-}
+        </div>
+      </SubjectLayout>
+    );
+  }

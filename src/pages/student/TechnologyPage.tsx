@@ -1,5 +1,6 @@
 import { SubjectLayout } from "@/components/student/SubjectLayout";
 import { GameCard } from "@/components/ui/game-card";
+import { TechnologyActiveLearning } from "@/components/active-learning/TechnologyActiveLearning";
 import { VillageLightUp, DebugDungeon, SystemBuilder } from "@/components/games";
 import { Laptop, Zap, Bug, Cog } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -49,6 +50,10 @@ export default function TechnologyPage() {
       xpEarned={0}
     >
       <div className="slide-up" style={{ animationDelay: "150ms" }}>
+        <TechnologyActiveLearning />
+      </div>
+
+      <div className="slide-up" style={{ animationDelay: "200ms" }}>
         <h3 className="mb-4 font-heading font-semibold text-foreground">
           🎮 Gamified Learning
         </h3>
@@ -122,7 +127,7 @@ export default function TechnologyPage() {
             </div>
           ))}
         </div>
-      </div>
-    </SubjectLayout>
-  );
-}
+        </div>
+      </SubjectLayout>
+    );
+  }
