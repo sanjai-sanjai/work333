@@ -158,6 +158,13 @@ export default function RewardsPage() {
           line-height: 20px;
         }
 
+        @media (max-width: 640px) {
+          .balance-unit {
+            font-family: "Nunito, sans-serif";
+            font-weight: 600;
+          }
+        }
+
         .balance-mascot-img {
           display: block;
           width: 120px;
