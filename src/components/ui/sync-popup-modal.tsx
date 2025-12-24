@@ -333,10 +333,10 @@ export function SyncPopupModal({
                         />
                       </div>
                     ) : isCurrent && isSyncing ? (
-                      <div 
+                      <div
                         className="w-2 h-2 rounded-full bg-purple-400"
                         style={{
-                          animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                          animation: 'smooth-pulse 2s ease-in-out infinite'
                         }}
                         aria-hidden="true"
                       />
