@@ -49,7 +49,13 @@
     "achievements": "Achievements",
     "stats": "Stats",
     "editProfile": "Edit Profile",
-    "logOut": "Log Out"
+    "logOut": "Log Out",
+    "gameLevels": "Game Levels",
+    "progress": "Progress",
+    "complete": "Complete",
+    "intermediate": "Intermediate",
+    "startLevel": "Start Level",
+    "playAgain": "Play Again"
   },
   "dashboard": {
     "greeting": "Hey",
