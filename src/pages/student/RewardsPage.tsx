@@ -268,7 +268,7 @@ export default function RewardsPage() {
               <div className="flex gap-4">
                 {/* Earned Card */}
                 <div
-                  className="flex-1 glass-card rounded-xl border border-border/50"
+                  className="earned-card flex-1 glass-card rounded-xl border border-border/50"
                   style={{
                     padding: "16px",
                   }}
