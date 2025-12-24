@@ -280,6 +280,21 @@ const App = () => (
                     <VillageSkillsPage />
                   </ProtectedRoute>
                 } />
+                <Route path="/student/village-skills/smart-farmer" element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <SmartFarmerGame />
+                  </ProtectedRoute>
+                } />
+                <Route path="/student/village-skills/water-saver" element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <WaterSaverGame />
+                  </ProtectedRoute>
+                } />
+                <Route path="/student/village-skills/market-manager" element={
+                  <ProtectedRoute allowedRoles={["student"]}>
+                    <VillageMarketGame />
+                  </ProtectedRoute>
+                } />
                 <Route path="/student/tasks" element={
                   <ProtectedRoute allowedRoles={["student"]}>
                     <TasksPage />
