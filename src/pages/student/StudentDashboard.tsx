@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { AppLayout } from "@/components/navigation";
 import { GameCard } from "@/components/ui/game-card";
 import { AchievementNotification } from "@/components/ui/achievement-notification";
