@@ -32,11 +32,11 @@ interface ImpactContributor {
     village?: string;
     school?: string;
   };
-  total_xp: number;
-  current_level: number;
-  contribution_score: number;
-  day_streak: number;
-  village_tasks_completed: number;
+  total_xp?: number;
+  current_level?: number;
+  contribution_score?: number;
+  day_streak?: number;
+  village_tasks_completed?: number;
 }
 
 interface AnonymousAction {
