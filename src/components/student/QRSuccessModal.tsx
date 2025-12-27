@@ -75,13 +75,17 @@ export function QRSuccessModal({
 }: QRSuccessModalProps) {
   const { t } = useTranslation();
   const [visibleStatusItems, setVisibleStatusItems] = useState<number>(0);
+  const { playQRRedemption } = useSoundEffects();
 
-  // Animate status items one by one
+  // Animate status items one by one and play success sound
   useEffect(() => {
     if (!open) {
       setVisibleStatusItems(0);
       return;
     }
+
+    // Play success sound immediately when modal opens
+    playQRRedemption?.();
 
     // Small delay to sync with modal opening
     const baseDelay = 300;
@@ -94,7 +98,7 @@ export function QRSuccessModal({
     });
 
     return () => timeouts.forEach((timeout) => clearTimeout(timeout));
-  }, [open]);
+  }, [open, playQRRedemption]);
 
   const handleCopyCode = () => {
     if (redemptionData?.redemptionCode) {
