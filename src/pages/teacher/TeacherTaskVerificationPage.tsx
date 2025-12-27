@@ -2,16 +2,19 @@ import { AppLayout } from "@/components/navigation";
 import { GameBadge } from "@/components/ui/game-badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TaskDetailModal } from "@/components/teacher/TaskDetailModal";
+import { RejectionReasonModal } from "@/components/teacher/RejectionReasonModal";
 import {
   Check,
   X,
-  MessageSquare,
   Image,
-  Mic,
   ChevronRight,
   Clock,
+  Eye,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Task {
   id: string;
@@ -19,10 +22,16 @@ interface Task {
   avatar: string;
   task: string;
   type: "village" | "academic" | "skill";
+  category: "family" | "village" | "subject";
   submittedAt: string;
   coins: number;
   hasPhoto: boolean;
   hasAudio: boolean;
+  instructions?: string;
+  proofType?: "photo" | "text";
+  proofContent?: string;
+  proofUrl?: string;
+  reflection?: string;
 }
 
 const pendingTasks: Task[] = [
@@ -32,10 +41,15 @@ const pendingTasks: Task[] = [
     avatar: "PS",
     task: "Check home electrical safety",
     type: "village",
+    category: "village",
     submittedAt: "10 min ago",
     coins: 50,
     hasPhoto: true,
     hasAudio: true,
+    instructions: "Visit 3 homes and check for basic electrical safety. Take photos and note any hazards.",
+    proofType: "photo",
+    proofUrl: "https://via.placeholder.com/300x400",
+    reflection: "I found several homes with unsafe wiring and helped families understand the risks.",
   },
   {
     id: "2",
@@ -43,10 +57,15 @@ const pendingTasks: Task[] = [
     avatar: "AK",
     task: "Create family monthly budget",
     type: "skill",
+    category: "family",
     submittedAt: "1 hour ago",
     coins: 40,
     hasPhoto: true,
     hasAudio: false,
+    instructions: "Work with your family to create a monthly budget. Document income, expenses, and savings goals.",
+    proofType: "photo",
+    proofUrl: "https://via.placeholder.com/300x400",
+    reflection: "My family and I created a budget together. It helped us understand where our money goes.",
   },
   {
     id: "3",
@@ -54,10 +73,15 @@ const pendingTasks: Task[] = [
     avatar: "RP",
     task: "Physics Chapter 5 Quiz",
     type: "academic",
+    category: "subject",
     submittedAt: "2 hours ago",
     coins: 30,
     hasPhoto: false,
     hasAudio: false,
+    instructions: "Complete the Physics Chapter 5 quiz covering motion and forces. Score at least 70%.",
+    proofType: "text",
+    proofContent: "Quiz Score: 85/100\n\nCorrect Answers: 17/20\nTime: 25 minutes\nTopics Mastered: Forces, Motion, Energy",
+    reflection: "I studied hard and understood most of the concepts. I need to review the section on kinetic energy.",
   },
   {
     id: "4",
@@ -65,10 +89,15 @@ const pendingTasks: Task[] = [
     avatar: "MS",
     task: "Help with water conservation",
     type: "village",
+    category: "village",
     submittedAt: "3 hours ago",
     coins: 60,
     hasPhoto: true,
     hasAudio: true,
+    instructions: "Lead a community activity to raise awareness about water conservation. Document the activity with photos.",
+    proofType: "photo",
+    proofUrl: "https://via.placeholder.com/300x400",
+    reflection: "I organized a session for 25 people in my village about saving water. Everyone was engaged and interested.",
   },
 ];
 
@@ -79,14 +108,58 @@ const reviewedTasks = [
 ];
 
 export default function TeacherTaskVerificationPage() {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState(pendingTasks);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleApprove = (taskId: string) => {
-    setTasks(tasks.filter((t) => t.id !== taskId));
+  const handleViewDetails = (task: Task) => {
+    setSelectedTask(task);
+    setShowDetailModal(true);
   };
 
-  const handleReject = (taskId: string) => {
-    setTasks(tasks.filter((t) => t.id !== taskId));
+  const handleApprove = async (taskId: string) => {
+    setIsProcessing(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setTasks(tasks.filter((t) => t.id !== taskId));
+      setShowDetailModal(false);
+      toast.success(
+        t("teacher.taskApproved", {
+          defaultValue: "Task approved! Student awarded coins.",
+        })
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRejectClick = (task: Task) => {
+    setSelectedTask(task);
+    setShowDetailModal(false);
+    setShowRejectionModal(true);
+  };
+
+  const handleRejectSubmit = async (reason: string) => {
+    if (!selectedTask) return;
+
+    setIsProcessing(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setTasks(tasks.filter((t) => t.id !== selectedTask.id));
+      setShowRejectionModal(false);
+      toast.success(
+        t("teacher.feedbackSent", {
+          defaultValue: "Feedback sent. Student will see your message.",
+        })
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const getTypeColor = (type: string) => {
@@ -103,12 +176,51 @@ export default function TeacherTaskVerificationPage() {
   };
 
   return (
-    <AppLayout role="teacher" title="Task Verification">
+    <AppLayout role="teacher" title={t("teacher.taskVerification", { defaultValue: "Task Verification" })}>
       <div className="px-4 py-6">
+        {/* Modals */}
+        <TaskDetailModal
+          task={
+            selectedTask
+              ? {
+                  id: selectedTask.id,
+                  title: selectedTask.task,
+                  category: selectedTask.category,
+                  instructions: selectedTask.instructions || "",
+                  coinReward: selectedTask.coins,
+                  submittedAt: selectedTask.submittedAt,
+                  studentName: selectedTask.student,
+                  proofType: selectedTask.proofType || "text",
+                  proofContent: selectedTask.proofContent || "",
+                  proofUrl: selectedTask.proofUrl,
+                  reflection: selectedTask.reflection || "",
+                  status: "pending",
+                }
+              : null
+          }
+          open={showDetailModal}
+          onClose={() => setShowDetailModal(false)}
+          onVerify={() => selectedTask && handleApprove(selectedTask.id)}
+          onReject={() => selectedTask && handleRejectClick(selectedTask)}
+        />
+
+        <RejectionReasonModal
+          taskTitle={selectedTask?.task || ""}
+          studentName={selectedTask?.student || ""}
+          open={showRejectionModal}
+          onClose={() => setShowRejectionModal(false)}
+          onSubmit={handleRejectSubmit}
+          isLoading={isProcessing}
+        />
+
         {/* Header */}
         <div className="mb-6 slide-up">
-          <h2 className="font-heading text-2xl font-bold">Task Verification</h2>
-          <p className="text-muted-foreground">Review student submissions</p>
+          <h2 className="font-heading text-2xl font-bold">
+            {t("teacher.taskVerification", { defaultValue: "Task Verification" })}
+          </h2>
+          <p className="text-muted-foreground">
+            {t("teacher.reviewSubmissions", { defaultValue: "Review student submissions" })}
+          </p>
         </div>
 
         {/* Stats */}
@@ -170,37 +282,42 @@ export default function TeacherTaskVerificationPage() {
                 </div>
 
                 {/* Attachments */}
-                <div className="mb-4 flex gap-2">
-                  {task.hasPhoto && (
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Image className="h-4 w-4" />
-                      View Photo
-                    </Button>
-                  )}
-                  {task.hasAudio && (
-                    <Button variant="outline" size="sm" className="gap-1">
-                      <Mic className="h-4 w-4" />
-                      Play Audio
-                    </Button>
-                  )}
-                </div>
+                {(task.hasPhoto || task.hasAudio) && (
+                  <div className="mb-4 flex gap-2">
+                    {task.hasPhoto && (
+                      <Button variant="outline" size="sm" className="gap-1">
+                        <Image className="h-4 w-4" />
+                        {t("teacher.viewPhoto", { defaultValue: "View Photo" })}
+                      </Button>
+                    )}
+                  </div>
+                )}
 
                 {/* Actions */}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1 gap-1 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                    onClick={() => handleReject(task.id)}
+                    className="flex-1"
+                    onClick={() => handleViewDetails(task)}
                   >
-                    <X className="h-4 w-4" />
-                    Reject
+                    <Eye className="h-4 w-4 mr-2" />
+                    {t("teacher.viewDetails", { defaultValue: "View Details" })}
                   </Button>
                   <Button
-                    className="flex-1 gap-1 bg-secondary hover:bg-secondary/90"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRejectClick(task)}
+                    disabled={isProcessing}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-secondary hover:bg-secondary/90"
                     onClick={() => handleApprove(task.id)}
+                    disabled={isProcessing}
                   >
                     <Check className="h-4 w-4" />
-                    Approve
                   </Button>
                 </div>
               </div>

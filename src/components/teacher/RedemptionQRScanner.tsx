@@ -4,7 +4,7 @@
  * Simple offline-capable interface for village settings
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Dialog,
@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { RewardVerificationCard } from "./RewardVerificationCard";
 import {
   Camera,
   CheckCircle2,
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { validateRedemptionQR } from "@/lib/qr-utils";
+import { useSoundEffects } from "@/hooks/use-sound-effects";
 import type { RedemptionData } from "@/lib/qr-utils";
 
 interface ScannedRedemption {
@@ -37,6 +39,10 @@ interface ScannedRedemption {
   token: string;
   timestamp: number;
   expiry: number;
+  studentName?: string;
+  productName?: string;
+  productImage?: string;
+  eduCoinsUsed?: number;
 }
 
 interface RedemptionQRScannerProps {
@@ -54,11 +60,13 @@ export function RedemptionQRScanner({
   onVerify,
 }: RedemptionQRScannerProps) {
   const { t } = useTranslation();
+  const { playQRRedemption } = useSoundEffects();
   const [step, setStep] = useState<ScannerStep>("scan");
   const [scannedData, setScannedData] = useState<ScannedRedemption | null>(null);
   const [actionResult, setActionResult] = useState<ActionResult>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showResultAnimation, setShowResultAnimation] = useState(false);
 
   const handleScan = (qrString: string) => {
     const validation = validateRedemptionQR(qrString);
@@ -92,6 +100,14 @@ export function RedemptionQRScanner({
 
       setActionResult(approved ? "verified" : "rejected");
       setStep("result");
+
+      // Play success sound and show animation
+      if (approved) {
+        setTimeout(() => {
+          setShowResultAnimation(true);
+          playQRRedemption?.();
+        }, 100);
+      }
     } catch (error) {
       toast.error(
         t("teacher.verificationFailed", {
@@ -240,85 +256,37 @@ export function RedemptionQRScanner({
               </DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4">
-              {/* Redemption Code */}
-              <Card className="border-primary/30 bg-card/40 p-4 backdrop-blur-sm">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {t("teacher.redemptionCode", {
-                      defaultValue: "Redemption Code",
-                    })}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 font-mono text-lg font-bold text-primary">
-                      {scannedData.redemptionCode}
-                    </code>
-                    <button
-                      onClick={handleCopyCode}
-                      className="p-2 hover:bg-primary/10 rounded transition-colors"
-                    >
-                      <Copy className="h-4 w-4 text-primary" />
-                    </button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Student Info */}
-              <Card className="border-border/50 bg-card/40 p-4 backdrop-blur-sm">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  {t("teacher.studentID", { defaultValue: "Student ID" })}
-                </p>
-                <p className="text-sm font-mono text-foreground">
-                  {scannedData.studentId}
-                </p>
-              </Card>
-
-              {/* Expiry Status */}
-              <div
-                className={`flex items-start gap-3 rounded-lg border p-3 ${
-                  scannedData.expiry < Date.now()
-                    ? "border-red-400/30 bg-red-400/5"
-                    : "border-green-400/30 bg-green-400/5"
-                }`}
-              >
-                {scannedData.expiry < Date.now() ? (
-                  <>
-                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
-                    <div className="text-sm text-red-400">
-                      {t("teacher.qrExpired", {
-                        defaultValue: "This QR code has expired",
-                      })}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-400" />
-                    <div className="text-sm text-green-400">
-                      {t("teacher.qrValid", {
-                        defaultValue: "This QR code is valid",
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {/* Reward Verification Card */}
+              <RewardVerificationCard
+                studentName={scannedData.studentName || "Student"}
+                productName={scannedData.productName || "Reward"}
+                productImage={scannedData.productImage}
+                eduCoinsUsed={scannedData.eduCoinsUsed || 0}
+                redemptionCode={scannedData.redemptionCode}
+                isExpired={scannedData.expiry < Date.now()}
+                showAnimation={false}
+              />
 
               {/* Rejection Reason (if needed) */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("teacher.rejectionReason", {
-                    defaultValue: "Rejection Reason (if applicable)",
-                  })}
-                </label>
-                <Textarea
-                  placeholder={t("teacher.reasonPlaceholder", {
-                    defaultValue: "Enter reason for rejection...",
-                  })}
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  disabled={scannedData.expiry < Date.now()}
-                  className="min-h-24 resize-none"
-                />
-              </div>
+              {scannedData.expiry >= Date.now() && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {t("teacher.rejectionReason", {
+                      defaultValue: "Rejection Reason (if rejecting)",
+                    })}
+                  </label>
+                  <Textarea
+                    placeholder={t("teacher.rejectionReasonPlaceholder", {
+                      defaultValue:
+                        "Only fill this if you're rejecting the redemption. Be supportive and constructive.",
+                    })}
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    className="min-h-24 resize-none"
+                  />
+                </div>
+              )}
             </div>
 
             <DialogFooter className="flex gap-2">
@@ -357,57 +325,120 @@ export function RedemptionQRScanner({
               <DialogTitle>
                 {actionResult === "verified"
                   ? t("teacher.verificationSuccess", {
-                      defaultValue: "Verified!",
+                      defaultValue: "Reward Verified!",
                     })
                   : t("teacher.rejectionConfirmed", {
-                      defaultValue: "Rejected",
+                      defaultValue: "Redemption Declined",
                     })}
               </DialogTitle>
             </DialogHeader>
 
-            <div className="flex flex-col items-center gap-4 py-6">
+            <div className={`flex flex-col items-center gap-4 py-8 ${showResultAnimation ? "animate-success-pulse" : ""}`}>
               {actionResult === "verified" ? (
                 <>
-                  <div className="rounded-full bg-green-400/20 p-4">
-                    <CheckCircle2 className="h-12 w-12 text-green-400" />
+                  <div className={`rounded-full p-6 transition-all ${
+                    showResultAnimation
+                      ? "bg-secondary/20 scale-100"
+                      : "bg-secondary/10 scale-95"
+                  }`}>
+                    <CheckCircle2
+                      className={`h-16 w-16 text-secondary transition-all ${
+                        showResultAnimation ? "animate-bounce" : ""
+                      }`}
+                    />
                   </div>
-                  <div className="text-center">
-                    <h3 className="font-heading text-lg font-semibold text-foreground mb-2">
+                  <div className="text-center space-y-2">
+                    <h3 className="font-heading text-2xl font-bold text-foreground">
                       {t("teacher.rewardHandedOver", {
-                        defaultValue: "Reward handed over successfully!",
+                        defaultValue: "Reward Given!",
                       })}
                     </h3>
                     <p className="text-sm text-muted-foreground">
+                      {scannedData?.studentName || "Student"} can now collect their reward
+                    </p>
+                    <code className="block font-mono text-xs text-primary mt-2">
                       {scannedData?.redemptionCode}
+                    </code>
+                  </div>
+
+                  {/* Success feedback */}
+                  <div className="w-full rounded-lg bg-secondary/10 border border-secondary/20 p-4 text-center">
+                    <p className="text-sm text-secondary font-medium">
+                      ✓ {t("teacher.offlineTransaction", {
+                        defaultValue: "This transaction has been saved offline",
+                      })}
                     </p>
                   </div>
                 </>
               ) : (
                 <>
-                  <div className="rounded-full bg-red-400/20 p-4">
-                    <XCircle className="h-12 w-12 text-red-400" />
+                  <div className="rounded-full bg-destructive/10 p-6">
+                    <XCircle className="h-16 w-16 text-destructive" />
                   </div>
-                  <div className="text-center">
-                    <h3 className="font-heading text-lg font-semibold text-foreground mb-2">
-                      {t("teacher.redemptionRejected", {
-                        defaultValue: "Redemption Rejected",
+                  <div className="text-center space-y-2">
+                    <h3 className="font-heading text-2xl font-bold text-foreground">
+                      {t("teacher.redemptionDeclined", {
+                        defaultValue: "Redemption Declined",
                       })}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {rejectionReason || "No reason provided"}
+                      {scannedData?.studentName || "Student"} has been notified
                     </p>
                   </div>
+
+                  {/* Rejection reason shown */}
+                  {rejectionReason && (
+                    <div className="w-full rounded-lg bg-destructive/5 border border-destructive/20 p-4">
+                      <p className="text-xs font-semibold text-destructive/70 mb-2">
+                        {t("teacher.reasonGiven", { defaultValue: "Reason" })}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {rejectionReason}
+                      </p>
+                    </div>
+                  )}
                 </>
               )}
             </div>
 
             <DialogFooter>
-              <Button onClick={handleReset} className="w-full bg-secondary hover:bg-secondary/90">
+              <Button
+                onClick={handleReset}
+                className={`w-full ${
+                  actionResult === "verified"
+                    ? "bg-secondary hover:bg-secondary/90"
+                    : "bg-primary hover:bg-primary/90"
+                }`}
+              >
                 {t("teacher.scanAnother", {
                   defaultValue: "Scan Another QR",
                 })}
               </Button>
             </DialogFooter>
+
+            <style>{`
+              @keyframes success-pulse {
+                0% {
+                  opacity: 0;
+                  transform: scale(0.95);
+                }
+                100% {
+                  opacity: 1;
+                  transform: scale(1);
+                }
+              }
+
+              .animate-success-pulse {
+                animation: success-pulse 0.6s ease-out;
+              }
+
+              @media (prefers-reduced-motion: reduce) {
+                .animate-success-pulse {
+                  animation: none;
+                  opacity: 1;
+                }
+              }
+            `}</style>
           </>
         )}
       </DialogContent>

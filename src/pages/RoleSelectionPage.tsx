@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { GraduationCap, BookOpen, Users, Settings } from "lucide-react";
+import { GraduationCap, BookOpen, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { LanguageSwitchButton } from "@/components/LanguageSwitchButton";
 import mascotWelcome from "@/assets/mascot-welcome.png";
 
 type Role = "student" | "teacher" | "parent";
@@ -61,13 +62,12 @@ export default function RoleSelectionPage() {
       <div className="absolute top-20 -left-20 w-64 h-64 rounded-full bg-primary/10 blur-[100px]" />
       <div className="absolute bottom-40 -right-20 w-64 h-64 rounded-full bg-accent/10 blur-[100px]" />
 
-      {/* Settings Icon - Language Selector */}
-      <button
-        onClick={() => setIsLanguageSelectorOpen(true)}
-        className="absolute top-4 right-4 p-2.5 rounded-full glass-card border border-border z-20 hover:bg-muted/50 transition-colors"
-      >
-        <Settings className="h-5 w-5 text-muted-foreground" />
-      </button>
+      {/* Language Switch Button */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitchButton
+          onClick={() => setIsLanguageSelectorOpen(true)}
+        />
+      </div>
 
       {/* Language Selector Modal */}
       <LanguageSelector
