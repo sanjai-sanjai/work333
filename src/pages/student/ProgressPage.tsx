@@ -4,10 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
 import { GameBadge } from "@/components/ui/game-badge";
-import { 
-  Trophy, 
-  Flame, 
-  Target, 
+import {
+  Trophy,
+  Flame,
+  Target,
   Star,
   Atom,
   FlaskConical,
@@ -21,7 +21,8 @@ import {
   Zap,
   Medal,
   Crown,
-  ChevronRight
+  ChevronRight,
+  Home
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import mascotPointing from "@/assets/mascot-pointing.png";
