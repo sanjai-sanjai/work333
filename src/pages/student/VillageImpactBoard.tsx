@@ -204,7 +204,7 @@ export default function VillageImpactBoard() {
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground text-sm">Contribution Score</span>
                 <span className="font-heading text-3xl font-bold text-accent">
-                  {currentUserData?.contribution_score || 0}
+                  {Math.max(userContributionScore, 0)}
                 </span>
               </div>
             </div>
