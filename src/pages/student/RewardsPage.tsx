@@ -583,9 +583,10 @@ export default function RewardsPage() {
             <div className="mb-6 slide-up" style={{ animationDelay: "50ms" }}>
               <Button
                 size="lg"
+                onClick={handleOpenMyRewards}
                 className="w-full bg-gradient-to-r from-primary to-primary/80 text-sm"
               >
-                {t('rewards.redeemRewards')}
+                {t('rewards.redeemRewards')} {savedRedemptions.length > 0 && `(${savedRedemptions.length})`}
               </Button>
             </div>
 
