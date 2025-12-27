@@ -94,10 +94,15 @@ export default function RewardsPage() {
     setShowConfirmationModal(true);
   };
 
-  // Handle confirmation - just passes to modal, modal handles QR generation
+  // Handle QR generation from modal
+  const handleQRGenerated = (redemptionData: RedemptionData) => {
+    setGeneratedRedemption(redemptionData);
+    setShowQRResultScreen(true);
+  };
+
+  // Handle confirmation - just closes modal, QR generation happens in modal
   const handleConfirmRedemption = async () => {
-    // Modal will handle the QR generation internally
-    // This function is now just for validation
+    // Modal handles everything now
   };
 
   // Handle saving redemption to wallet
