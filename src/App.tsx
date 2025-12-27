@@ -430,10 +430,10 @@ const App = () => (
                   </ProtectedRoute>
                 } />
                 
-                {/* Leaderboard */}
+                {/* Village Impact Board */}
                 <Route path="/student/leaderboard" element={
                   <ProtectedRoute allowedRoles={["student"]}>
-                    <LeaderboardPage />
+                    <VillageImpactBoard />
                   </ProtectedRoute>
                 } />
 
