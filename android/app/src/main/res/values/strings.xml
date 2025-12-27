@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PlayNlearn</string>
+    <string name="title_activity_main">PlayNlearn</string>
+    <string name="package_name">com.learngrow.playnlearn</string>
+    <string name="custom_url_scheme">com.learngrow.playnlearn</string>
+</resources>
