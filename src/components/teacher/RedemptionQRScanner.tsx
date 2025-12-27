@@ -60,11 +60,13 @@ export function RedemptionQRScanner({
   onVerify,
 }: RedemptionQRScannerProps) {
   const { t } = useTranslation();
+  const { playQRRedemption } = useSoundEffects();
   const [step, setStep] = useState<ScannerStep>("scan");
   const [scannedData, setScannedData] = useState<ScannedRedemption | null>(null);
   const [actionResult, setActionResult] = useState<ActionResult>(null);
   const [rejectionReason, setRejectionReason] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showResultAnimation, setShowResultAnimation] = useState(false);
 
   const handleScan = (qrString: string) => {
     const validation = validateRedemptionQR(qrString);
