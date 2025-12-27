@@ -2,16 +2,19 @@ import { AppLayout } from "@/components/navigation";
 import { GameBadge } from "@/components/ui/game-badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TaskDetailModal } from "@/components/teacher/TaskDetailModal";
+import { RejectionReasonModal } from "@/components/teacher/RejectionReasonModal";
 import {
   Check,
   X,
-  MessageSquare,
   Image,
-  Mic,
   ChevronRight,
   Clock,
+  Eye,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface Task {
   id: string;
