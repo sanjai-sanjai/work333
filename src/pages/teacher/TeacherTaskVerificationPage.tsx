@@ -108,14 +108,58 @@ const reviewedTasks = [
 ];
 
 export default function TeacherTaskVerificationPage() {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState(pendingTasks);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleApprove = (taskId: string) => {
-    setTasks(tasks.filter((t) => t.id !== taskId));
+  const handleViewDetails = (task: Task) => {
+    setSelectedTask(task);
+    setShowDetailModal(true);
   };
 
-  const handleReject = (taskId: string) => {
-    setTasks(tasks.filter((t) => t.id !== taskId));
+  const handleApprove = async (taskId: string) => {
+    setIsProcessing(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setTasks(tasks.filter((t) => t.id !== taskId));
+      setShowDetailModal(false);
+      toast.success(
+        t("teacher.taskApproved", {
+          defaultValue: "Task approved! Student awarded coins.",
+        })
+      );
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRejectClick = (task: Task) => {
+    setSelectedTask(task);
+    setShowDetailModal(false);
+    setShowRejectionModal(true);
+  };
+
+  const handleRejectSubmit = async (reason: string) => {
+    if (!selectedTask) return;
+
+    setIsProcessing(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setTasks(tasks.filter((t) => t.id !== selectedTask.id));
+      setShowRejectionModal(false);
+      toast.success(
+        t("teacher.feedbackSent", {
+          defaultValue: "Feedback sent. Student will see your message.",
+        })
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const getTypeColor = (type: string) => {
