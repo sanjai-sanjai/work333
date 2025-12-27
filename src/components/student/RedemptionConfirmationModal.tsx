@@ -144,27 +144,27 @@ export function RedemptionConfirmationModal({
           )}
         </div>
 
-        {/* Actions */}
-        <DialogFooter className="flex gap-2 sm:gap-3">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            disabled={isLoading}
-            className="flex-1"
-          >
-            {t("common.cancel", { defaultValue: "Cancel" })}
-          </Button>
+        {/* Actions - Stacked layout for clarity */}
+        <DialogFooter className="flex flex-col gap-3 sm:gap-3">
           <Button
             onClick={onConfirm}
             disabled={!canAfford || isLoading}
-            className="flex-1 bg-secondary hover:bg-secondary/90"
+            className="w-full bg-gradient-to-r from-secondary to-secondary/90 hover:from-secondary/95 hover:to-secondary/85 text-white font-semibold rounded-xl py-6 text-base transition-all"
             size="lg"
           >
             {isLoading
               ? t("common.generating", { defaultValue: "Generating..." })
-              : t("redemption.generateQr", {
-                  defaultValue: "Generate QR",
+              : t("redemption.generateQrCode", {
+                  defaultValue: "Generate QR Code",
                 })}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isLoading}
+            className="w-full rounded-xl py-2.5"
+          >
+            {t("common.cancel", { defaultValue: "Cancel" })}
           </Button>
         </DialogFooter>
       </DialogContent>
