@@ -248,85 +248,37 @@ export function RedemptionQRScanner({
               </DialogTitle>
             </DialogHeader>
 
-            <div className="space-y-4">
-              {/* Redemption Code */}
-              <Card className="border-primary/30 bg-card/40 p-4 backdrop-blur-sm">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    {t("teacher.redemptionCode", {
-                      defaultValue: "Redemption Code",
-                    })}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 font-mono text-lg font-bold text-primary">
-                      {scannedData.redemptionCode}
-                    </code>
-                    <button
-                      onClick={handleCopyCode}
-                      className="p-2 hover:bg-primary/10 rounded transition-colors"
-                    >
-                      <Copy className="h-4 w-4 text-primary" />
-                    </button>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Student Info */}
-              <Card className="border-border/50 bg-card/40 p-4 backdrop-blur-sm">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                  {t("teacher.studentID", { defaultValue: "Student ID" })}
-                </p>
-                <p className="text-sm font-mono text-foreground">
-                  {scannedData.studentId}
-                </p>
-              </Card>
-
-              {/* Expiry Status */}
-              <div
-                className={`flex items-start gap-3 rounded-lg border p-3 ${
-                  scannedData.expiry < Date.now()
-                    ? "border-red-400/30 bg-red-400/5"
-                    : "border-green-400/30 bg-green-400/5"
-                }`}
-              >
-                {scannedData.expiry < Date.now() ? (
-                  <>
-                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-red-400" />
-                    <div className="text-sm text-red-400">
-                      {t("teacher.qrExpired", {
-                        defaultValue: "This QR code has expired",
-                      })}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-400" />
-                    <div className="text-sm text-green-400">
-                      {t("teacher.qrValid", {
-                        defaultValue: "This QR code is valid",
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
+            <div className="space-y-4 max-h-96 overflow-y-auto">
+              {/* Reward Verification Card */}
+              <RewardVerificationCard
+                studentName={scannedData.studentName || "Student"}
+                productName={scannedData.productName || "Reward"}
+                productImage={scannedData.productImage}
+                eduCoinsUsed={scannedData.eduCoinsUsed || 0}
+                redemptionCode={scannedData.redemptionCode}
+                isExpired={scannedData.expiry < Date.now()}
+                showAnimation={false}
+              />
 
               {/* Rejection Reason (if needed) */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t("teacher.rejectionReason", {
-                    defaultValue: "Rejection Reason (if applicable)",
-                  })}
-                </label>
-                <Textarea
-                  placeholder={t("teacher.reasonPlaceholder", {
-                    defaultValue: "Enter reason for rejection...",
-                  })}
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  disabled={scannedData.expiry < Date.now()}
-                  className="min-h-24 resize-none"
-                />
-              </div>
+              {scannedData.expiry >= Date.now() && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {t("teacher.rejectionReason", {
+                      defaultValue: "Rejection Reason (if rejecting)",
+                    })}
+                  </label>
+                  <Textarea
+                    placeholder={t("teacher.rejectionReasonPlaceholder", {
+                      defaultValue:
+                        "Only fill this if you're rejecting the redemption. Be supportive and constructive.",
+                    })}
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    className="min-h-24 resize-none"
+                  />
+                </div>
+              )}
             </div>
 
             <DialogFooter className="flex gap-2">
