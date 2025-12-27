@@ -174,9 +174,9 @@ export default function VillageImpactBoard() {
               <div className="mt-4">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>Village XP Progress</span>
-                  <span>{(totalVillageXP / 1000).toFixed(1)}k XP</span>
+                  <span>{Math.max(totalVillageXP / 1000, 0).toFixed(1)}k XP</span>
                 </div>
-                <AnimatedProgress value={(totalVillageXP % 10000) / 100} variant="default" className="h-2" />
+                <AnimatedProgress value={Math.min(Math.max((totalVillageXP % 10000) / 100, 0), 100)} variant="default" className="h-2" />
               </div>
             </div>
           </Card>
