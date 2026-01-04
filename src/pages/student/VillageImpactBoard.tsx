@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AnimatedProgress } from "@/components/ui/animated-progress";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Flame,
   Home,
@@ -43,34 +44,49 @@ interface ImpactContributor {
 }
 
 /**
- * Village Contribution Score (VCS) based on learning behaviors, not marks or ranks
- * Calculated from:
- * - 🔥 Learning consistency (day streak)
- * - 🏡 Family & village tasks completed
- * - 📚 Learning progress (subject levels)
- * - 🎯 Village challenges completed
- * - 🤝 Positive learning actions
+ * Calculate Village Contribution Score (VCS) based on actual student activity
+ * Uses real data from localStorage and task submissions
  */
-const calculateVCS = (contributor: ImpactContributor): number => {
-  let score = 0;
-
-  // Consistency bonus (day streak)
-  const streak = contributor.day_streak || 0;
-  score += streak * 2; // Each day = +2 VCS
-
-  // Village tasks completion
-  const villageTasks = contributor.village_tasks_completed || 0;
-  score += villageTasks * 5; // Each task = +5 VCS
-
-  // Learning progress (level-based)
-  const level = contributor.current_level || 0;
-  score += level * 3; // Each level = +3 VCS
-
-  // Total XP as learning effort indicator
-  const xp = contributor.total_xp || 0;
-  score += Math.floor(xp / 100); // Every 100 XP = +1 VCS
-
-  return Math.max(Math.floor(score), 0);
+const calculateVCSFromActivity = (userId: string): {
+  vcs: number;
+  streak: number;
+  villageTasks: number;
+  completedTasks: number;
+  submissions: number;
+} => {
+  // Get task submissions from localStorage
+  const submissions = JSON.parse(localStorage.getItem('taskSubmissions') || '[]');
+  const userSubmissions = submissions.filter((s: any) => s.studentName === 'Current Student'); // In real app, filter by actual user ID
+  
+  // Get completed assignments
+  const completedAssignments = userSubmissions.filter((s: any) => s.status === 'approved').length;
+  const pendingSubmissions = userSubmissions.filter((s: any) => s.status === 'pending').length;
+  
+  // Calculate streak based on submission dates (simplified)
+  const recentSubmissions = userSubmissions.filter((s: any) => {
+    const submissionDate = new Date(s.submittedAt);
+    const daysDiff = Math.floor((Date.now() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
+    return daysDiff <= 7; // Submissions in last 7 days
+  });
+  
+  const streak = Math.min(recentSubmissions.length, 30); // Cap at 30 days
+  const villageTasks = completedAssignments;
+  const totalSubmissions = userSubmissions.length;
+  
+  // Calculate VCS based on actual activity
+  let vcs = 0;
+  vcs += streak * 2; // Each day streak = +2 VCS
+  vcs += villageTasks * 5; // Each completed task = +5 VCS
+  vcs += pendingSubmissions * 2; // Pending submissions = +2 VCS
+  vcs += totalSubmissions * 1; // Each submission attempt = +1 VCS
+  
+  return {
+    vcs: Math.max(vcs, 0),
+    streak,
+    villageTasks,
+    completedTasks: completedAssignments,
+    submissions: totalSubmissions
+  };
 };
 
 /**
@@ -184,19 +200,37 @@ export default function VillageImpactBoard() {
     setIsAnimating(true);
   }, []);
 
-  // Village statistics (community-focused)
-  const totalActiveLearners = Math.max(leaderboard.length, 0);
-  const totalVillageXP = Math.max(leaderboard.reduce((sum, entry) => sum + (entry.total_xp || 0), 0), 0);
-  const villageLevel = Math.max(Math.floor(totalVillageXP / 10000) + 1, 1);
-
-  // Current user data
-  const currentUserData = leaderboard.find((entry) => entry.user_id === user?.id) as ImpactContributor | undefined;
-  const userStreak = Math.max(currentUserData?.day_streak || 0, 0);
-  const userVillageTasks = Math.max(currentUserData?.village_tasks_completed || 0, 0);
-  const userLevel = Math.max(currentUserData?.current_level || 0, 0);
-
-  // Village Contribution Score (VCS) - behavior-based, not rank-based
-  const userVCS = currentUserData ? calculateVCS(currentUserData) : 0;
+  // Calculate user activity from actual data
+  const userActivity = calculateVCSFromActivity(user?.id || 'current_user');
+  const userVCS = userActivity.vcs;
+  const userStreak = userActivity.streak;
+  const userVillageTasks = userActivity.villageTasks;
+  const userCompletedTasks = userActivity.completedTasks;
+  const userSubmissions = userActivity.submissions;
+  
+  // Calculate village stats from all submissions and database assignments
+  const allSubmissions = JSON.parse(localStorage.getItem('taskSubmissions') || '[]');
+  const [dbAssignments, setDbAssignments] = useState([]);
+  
+  useEffect(() => {
+    const loadAssignments = async () => {
+      try {
+        const { data } = await supabase
+          .from('assignments')
+          .select('*')
+          .eq('is_active', true);
+        setDbAssignments(data || []);
+      } catch (error) {
+        console.error('Error loading assignments:', error);
+      }
+    };
+    loadAssignments();
+  }, []);
+  
+  const totalActiveLearners = Math.max(new Set(allSubmissions.map((s: any) => s.studentName)).size, 1);
+  const totalCompletedTasks = allSubmissions.filter((s: any) => s.status === 'approved').length;
+  const totalVillageXP = totalCompletedTasks * 100; // 100 XP per completed task
+  const villageLevel = Math.max(Math.floor(totalVillageXP / 1000) + 1, 1);
   const vcsProgress = Math.min(Math.max((userVCS / 300) * 100, 0), 100);
 
   const anonymousActions = generateAnonymousActions();
@@ -351,16 +385,16 @@ export default function VillageImpactBoard() {
                 <div className="bg-background/50 rounded-lg p-3 border border-border/50">
                   <div className="flex items-center gap-1.5 mb-1">
                     <BookOpen className="h-4 w-4 text-secondary" />
-                    <span className="text-xs text-muted-foreground font-medium">Learning Progress</span>
+                    <span className="text-xs text-muted-foreground font-medium">Completed Tasks</span>
                   </div>
-                  <p className="font-bold text-foreground text-base">{userLevel}</p>
+                  <p className="font-bold text-foreground text-base">{userCompletedTasks}</p>
                 </div>
                 <div className="bg-background/50 rounded-lg p-3 border border-border/50">
                   <div className="flex items-center gap-1.5 mb-1">
                     <Users className="h-4 w-4 text-accent" />
-                    <span className="text-xs text-muted-foreground font-medium">Positive Actions</span>
+                    <span className="text-xs text-muted-foreground font-medium">Total Submissions</span>
                   </div>
-                  <p className="font-bold text-foreground text-base">+{Math.max(Math.floor(userVCS / 20), 0)}</p>
+                  <p className="font-bold text-foreground text-base">{userSubmissions}</p>
                 </div>
               </div>
             </Card>

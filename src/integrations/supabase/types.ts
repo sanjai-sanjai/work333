@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      achievements: {
+      assignments: {
+        Row: {
+          id: string
+          title: string
+          description: string
+          subject: string
+          due_date: string | null
+          teacher_id: string
+          class_id: string | null
+          created_at: string
+          updated_at: string
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          title: string
+          description: string
+          subject: string
+          due_date?: string | null
+          teacher_id: string
+          class_id?: string | null
+          created_at?: string
+          updated_at?: string
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          subject?: string
+          due_date?: string | null
+          teacher_id?: string
+          class_id?: string | null
+          created_at?: string
+          updated_at?: string
+          is_active?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignments_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assignments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
         Row: {
           category: string
           created_at: string

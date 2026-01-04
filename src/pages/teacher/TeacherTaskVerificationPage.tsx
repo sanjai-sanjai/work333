@@ -2,8 +2,6 @@ import { AppLayout } from "@/components/navigation";
 import { GameBadge } from "@/components/ui/game-badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TaskDetailModal } from "@/components/teacher/TaskDetailModal";
-import { RejectionReasonModal } from "@/components/teacher/RejectionReasonModal";
 import {
   Check,
   X,
@@ -12,206 +10,140 @@ import {
   Clock,
   Eye,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/contexts/AuthContext";
 
-interface Task {
+interface TaskSubmission {
   id: string;
-  student: string;
-  avatar: string;
-  task: string;
-  type: "village" | "academic" | "skill";
-  category: "family" | "village" | "subject";
+  assignmentId: string;
+  studentName: string;
   submittedAt: string;
-  coins: number;
-  hasPhoto: boolean;
-  hasAudio: boolean;
-  instructions?: string;
-  proofType?: "photo" | "text";
-  proofContent?: string;
-  proofUrl?: string;
-  reflection?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  screenshot: string | null;
+  assignmentTitle?: string;
 }
-
-const pendingTasks: Task[] = [
-  {
-    id: "1",
-    student: "Priya Sharma",
-    avatar: "PS",
-    task: "Check home electrical safety",
-    type: "village",
-    category: "village",
-    submittedAt: "10 min ago",
-    coins: 50,
-    hasPhoto: true,
-    hasAudio: true,
-    instructions: "Visit 3 homes and check for basic electrical safety. Take photos and note any hazards.",
-    proofType: "photo",
-    proofUrl: "https://via.placeholder.com/300x400",
-    reflection: "I found several homes with unsafe wiring and helped families understand the risks.",
-  },
-  {
-    id: "2",
-    student: "Amit Kumar",
-    avatar: "AK",
-    task: "Create family monthly budget",
-    type: "skill",
-    category: "family",
-    submittedAt: "1 hour ago",
-    coins: 40,
-    hasPhoto: true,
-    hasAudio: false,
-    instructions: "Work with your family to create a monthly budget. Document income, expenses, and savings goals.",
-    proofType: "photo",
-    proofUrl: "https://via.placeholder.com/300x400",
-    reflection: "My family and I created a budget together. It helped us understand where our money goes.",
-  },
-  {
-    id: "3",
-    student: "Ravi Patel",
-    avatar: "RP",
-    task: "Physics Chapter 5 Quiz",
-    type: "academic",
-    category: "subject",
-    submittedAt: "2 hours ago",
-    coins: 30,
-    hasPhoto: false,
-    hasAudio: false,
-    instructions: "Complete the Physics Chapter 5 quiz covering motion and forces. Score at least 70%.",
-    proofType: "text",
-    proofContent: "Quiz Score: 85/100\n\nCorrect Answers: 17/20\nTime: 25 minutes\nTopics Mastered: Forces, Motion, Energy",
-    reflection: "I studied hard and understood most of the concepts. I need to review the section on kinetic energy.",
-  },
-  {
-    id: "4",
-    student: "Meera Singh",
-    avatar: "MS",
-    task: "Help with water conservation",
-    type: "village",
-    category: "village",
-    submittedAt: "3 hours ago",
-    coins: 60,
-    hasPhoto: true,
-    hasAudio: true,
-    instructions: "Lead a community activity to raise awareness about water conservation. Document the activity with photos.",
-    proofType: "photo",
-    proofUrl: "https://via.placeholder.com/300x400",
-    reflection: "I organized a session for 25 people in my village about saving water. Everyone was engaged and interested.",
-  },
-];
-
-const reviewedTasks = [
-  { id: "5", student: "Sunita Devi", task: "Chemistry Lab Report", status: "approved", reviewedAt: "1 day ago" },
-  { id: "6", student: "Vikram Rao", task: "Village cleanup participation", status: "approved", reviewedAt: "1 day ago" },
-  { id: "7", student: "Neha Gupta", task: "Math practice problems", status: "rejected", reviewedAt: "2 days ago" },
-];
 
 export default function TeacherTaskVerificationPage() {
   const { t } = useTranslation();
-  const [tasks, setTasks] = useState(pendingTasks);
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
-  const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const { user } = useAuth();
+  const [submissions, setSubmissions] = useState<TaskSubmission[]>([]);
+  const [selectedSubmission, setSelectedSubmission] = useState<TaskSubmission | null>(null);
+  const [showImageModal, setShowImageModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleViewDetails = (task: Task) => {
-    setSelectedTask(task);
-    setShowDetailModal(true);
+  useEffect(() => {
+    loadSubmissions();
+  }, []);
+
+  const loadSubmissions = () => {
+    const savedSubmissions = JSON.parse(localStorage.getItem('taskSubmissions') || '[]');
+    const savedAssignments = JSON.parse(localStorage.getItem('allAssignments') || '[]');
+    
+    // Add assignment titles to submissions
+    const submissionsWithTitles = savedSubmissions.map((sub: TaskSubmission) => {
+      const assignment = savedAssignments.find((a: any) => a.id === sub.assignmentId);
+      return {
+        ...sub,
+        assignmentTitle: assignment?.title || 'Unknown Assignment'
+      };
+    });
+    
+    setSubmissions(submissionsWithTitles);
   };
 
-  const handleApprove = async (taskId: string) => {
+  const handleApprove = async (submissionId: string) => {
     setIsProcessing(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setTasks(tasks.filter((t) => t.id !== taskId));
-      setShowDetailModal(false);
-      toast.success(
-        t("teacher.taskApproved", {
-          defaultValue: "Task approved! Student awarded coins.",
-        })
+      const updatedSubmissions = submissions.map(sub => 
+        sub.id === submissionId ? { ...sub, status: 'approved' as const } : sub
       );
+      setSubmissions(updatedSubmissions);
+      localStorage.setItem('taskSubmissions', JSON.stringify(updatedSubmissions));
+      toast.success("Task approved! Student will be notified.");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const handleRejectClick = (task: Task) => {
-    setSelectedTask(task);
-    setShowDetailModal(false);
-    setShowRejectionModal(true);
-  };
-
-  const handleRejectSubmit = async (reason: string) => {
-    if (!selectedTask) return;
-
+  const handleReject = async (submissionId: string) => {
     setIsProcessing(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setTasks(tasks.filter((t) => t.id !== selectedTask.id));
-      setShowRejectionModal(false);
-      toast.success(
-        t("teacher.feedbackSent", {
-          defaultValue: "Feedback sent. Student will see your message.",
-        })
+      const updatedSubmissions = submissions.map(sub => 
+        sub.id === submissionId ? { ...sub, status: 'rejected' as const } : sub
       );
+      setSubmissions(updatedSubmissions);
+      localStorage.setItem('taskSubmissions', JSON.stringify(updatedSubmissions));
+      toast.success("Task rejected. Student will be notified.");
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case "village":
-        return "secondary";
-      case "academic":
-        return "primary";
-      case "skill":
-        return "accent";
-      default:
-        return "outline";
-    }
+  const handleViewImage = (submission: TaskSubmission) => {
+    setSelectedSubmission(submission);
+    setShowImageModal(true);
   };
+
+  const pendingSubmissions = submissions.filter(sub => sub.status === 'pending');
+  const reviewedSubmissions = submissions.filter(sub => sub.status !== 'pending');
 
   return (
     <AppLayout role="teacher" title={t("teacher.taskVerification", { defaultValue: "Task Verification" })}>
       <div className="px-4 py-6">
-        {/* Modals */}
-        <TaskDetailModal
-          task={
-            selectedTask
-              ? {
-                  id: selectedTask.id,
-                  title: selectedTask.task,
-                  category: selectedTask.category,
-                  instructions: selectedTask.instructions || "",
-                  coinReward: selectedTask.coins,
-                  submittedAt: selectedTask.submittedAt,
-                  studentName: selectedTask.student,
-                  proofType: selectedTask.proofType || "text",
-                  proofContent: selectedTask.proofContent || "",
-                  proofUrl: selectedTask.proofUrl,
-                  reflection: selectedTask.reflection || "",
-                  status: "pending",
-                }
-              : null
-          }
-          open={showDetailModal}
-          onClose={() => setShowDetailModal(false)}
-          onVerify={() => selectedTask && handleApprove(selectedTask.id)}
-          onReject={() => selectedTask && handleRejectClick(selectedTask)}
-        />
-
-        <RejectionReasonModal
-          taskTitle={selectedTask?.task || ""}
-          studentName={selectedTask?.student || ""}
-          open={showRejectionModal}
-          onClose={() => setShowRejectionModal(false)}
-          onSubmit={handleRejectSubmit}
-          isLoading={isProcessing}
-        />
+        {/* Image Modal */}
+        {selectedSubmission && showImageModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-auto">
+              <div className="p-4 border-b">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold">{selectedSubmission.assignmentTitle}</h3>
+                    <p className="text-sm text-muted-foreground">by {selectedSubmission.studentName}</p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => setShowImageModal(false)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="p-4">
+                {selectedSubmission.screenshot && (
+                  <img 
+                    src={selectedSubmission.screenshot} 
+                    alt="Student submission" 
+                    className="w-full h-auto rounded-lg"
+                  />
+                )}
+                <div className="flex gap-2 mt-4">
+                  <Button 
+                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    onClick={() => {
+                      handleApprove(selectedSubmission.id);
+                      setShowImageModal(false);
+                    }}
+                    disabled={isProcessing}
+                  >
+                    <Check className="h-4 w-4 mr-2" />
+                    Approve
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    className="flex-1"
+                    onClick={() => {
+                      handleReject(selectedSubmission.id);
+                      setShowImageModal(false);
+                    }}
+                    disabled={isProcessing}
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Reject
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Header */}
         <div className="mb-6 slide-up">
@@ -226,15 +158,15 @@ export default function TeacherTaskVerificationPage() {
         {/* Stats */}
         <div className="mb-6 grid grid-cols-3 gap-3 slide-up" style={{ animationDelay: "100ms" }}>
           <div className="rounded-xl border-2 border-accent/30 bg-accent/10 p-3 text-center">
-            <p className="font-heading text-2xl font-bold text-accent">{tasks.length}</p>
+            <p className="font-heading text-2xl font-bold text-accent">{pendingSubmissions.length}</p>
             <p className="text-xs text-muted-foreground">Pending</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">
-            <p className="font-heading text-2xl font-bold text-secondary">24</p>
+            <p className="font-heading text-2xl font-bold text-secondary">{reviewedSubmissions.filter(s => s.status === 'approved').length}</p>
             <p className="text-xs text-muted-foreground">Approved</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-3 text-center">
-            <p className="font-heading text-2xl font-bold text-destructive">3</p>
+            <p className="font-heading text-2xl font-bold text-destructive">{reviewedSubmissions.filter(s => s.status === 'rejected').length}</p>
             <p className="text-xs text-muted-foreground">Rejected</p>
           </div>
         </div>
@@ -243,53 +175,53 @@ export default function TeacherTaskVerificationPage() {
         <Tabs defaultValue="pending" className="slide-up" style={{ animationDelay: "150ms" }}>
           <TabsList className="mb-4 w-full">
             <TabsTrigger value="pending" className="flex-1">
-              Pending ({tasks.length})
+              Pending ({pendingSubmissions.length})
             </TabsTrigger>
             <TabsTrigger value="reviewed" className="flex-1">
-              Reviewed
+              Reviewed ({reviewedSubmissions.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="pending" className="space-y-4">
-            {tasks.map((task) => (
+            {pendingSubmissions.map((submission) => (
               <div
-                key={task.id}
+                key={submission.id}
                 className="rounded-xl border border-border bg-card p-4"
               >
                 {/* Header */}
                 <div className="mb-3 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-heading font-bold text-primary text-sm">
-                      {task.avatar}
+                      {submission.studentName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                     </div>
                     <div>
-                      <p className="font-medium">{task.student}</p>
+                      <p className="font-medium">{submission.studentName}</p>
                       <p className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Clock className="h-3 w-3" />
-                        {task.submittedAt}
+                        {new Date(submission.submittedAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
-                  <GameBadge variant={getTypeColor(task.type)} size="sm">
-                    {task.type}
+                  <GameBadge variant="primary" size="sm">
+                    Assignment
                   </GameBadge>
                 </div>
 
                 {/* Task Info */}
                 <div className="mb-3">
-                  <p className="font-medium">{task.task}</p>
-                  <p className="text-sm text-accent">+{task.coins} PlayCoins</p>
+                  <p className="font-medium">{submission.assignmentTitle}</p>
+                  <p className="text-sm text-muted-foreground">Screenshot submission</p>
                 </div>
 
-                {/* Attachments */}
-                {(task.hasPhoto || task.hasAudio) && (
-                  <div className="mb-4 flex gap-2">
-                    {task.hasPhoto && (
-                      <Button variant="outline" size="sm" className="gap-1">
-                        <Image className="h-4 w-4" />
-                        {t("teacher.viewPhoto", { defaultValue: "View Photo" })}
-                      </Button>
-                    )}
+                {/* Screenshot Preview */}
+                {submission.screenshot && (
+                  <div className="mb-4">
+                    <img 
+                      src={submission.screenshot} 
+                      alt="Student submission preview" 
+                      className="w-full h-32 object-cover rounded-lg cursor-pointer"
+                      onClick={() => handleViewImage(submission)}
+                    />
                   </div>
                 )}
 
@@ -298,15 +230,15 @@ export default function TeacherTaskVerificationPage() {
                   <Button
                     variant="outline"
                     className="flex-1"
-                    onClick={() => handleViewDetails(task)}
+                    onClick={() => handleViewImage(submission)}
                   >
                     <Eye className="h-4 w-4 mr-2" />
-                    {t("teacher.viewDetails", { defaultValue: "View Details" })}
+                    View Full Image
                   </Button>
                   <Button
                     variant="destructive"
                     size="sm"
-                    onClick={() => handleRejectClick(task)}
+                    onClick={() => handleReject(submission.id)}
                     disabled={isProcessing}
                   >
                     <X className="h-4 w-4" />
@@ -314,7 +246,7 @@ export default function TeacherTaskVerificationPage() {
                   <Button
                     size="sm"
                     className="bg-secondary hover:bg-secondary/90"
-                    onClick={() => handleApprove(task.id)}
+                    onClick={() => handleApprove(submission.id)}
                     disabled={isProcessing}
                   >
                     <Check className="h-4 w-4" />
@@ -323,33 +255,33 @@ export default function TeacherTaskVerificationPage() {
               </div>
             ))}
 
-            {tasks.length === 0 && (
+            {pendingSubmissions.length === 0 && (
               <div className="rounded-xl border border-dashed border-border p-8 text-center">
                 <Check className="mx-auto mb-2 h-12 w-12 text-secondary" />
                 <p className="font-heading font-semibold">All caught up!</p>
                 <p className="text-sm text-muted-foreground">
-                  No pending tasks to review
+                  No pending submissions to review
                 </p>
               </div>
             )}
           </TabsContent>
 
           <TabsContent value="reviewed" className="space-y-3">
-            {reviewedTasks.map((task) => (
+            {reviewedSubmissions.map((submission) => (
               <div
-                key={task.id}
+                key={submission.id}
                 className="flex items-center justify-between rounded-xl border border-border bg-card p-3"
               >
                 <div>
-                  <p className="font-medium">{task.student}</p>
-                  <p className="text-sm text-muted-foreground">{task.task}</p>
+                  <p className="font-medium">{submission.studentName}</p>
+                  <p className="text-sm text-muted-foreground">{submission.assignmentTitle}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <GameBadge
-                    variant={task.status === "approved" ? "secondary" : "accent"}
+                    variant={submission.status === "approved" ? "secondary" : "destructive"}
                     size="sm"
                   >
-                    {task.status}
+                    {submission.status}
                   </GameBadge>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>

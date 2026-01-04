@@ -4,7 +4,7 @@
  * Shows learning streaks, subject progress, strengths and support needed
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { AppLayout } from "@/components/navigation";
 import { StudentCard } from "@/components/teacher/StudentCard";
@@ -24,7 +24,10 @@ import {
   BookOpen,
   Gift,
   Zap,
+  Users,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Student {
   id: string;
@@ -44,106 +47,68 @@ interface Student {
   earnedCoins: number;
 }
 
-const students: Student[] = [
-  {
-    id: "1",
-    name: "Priya Sharma",
-    avatar: "PS",
-    class: "Grade 9A",
-    learningStreak: 12,
-    lastActive: "5 min ago",
-    subjects: [
-      { name: "Physics", progress: 85, color: "bg-primary" },
-      { name: "Chemistry", progress: 78, color: "bg-secondary" },
-      { name: "Biology", progress: 72, color: "bg-accent" },
-      { name: "Math", progress: 92, color: "bg-badge" },
-      { name: "English", progress: 88, color: "bg-primary" },
-      { name: "History", progress: 75, color: "bg-secondary" },
-      { name: "Geography", progress: 68, color: "bg-accent" },
-      { name: "IT", progress: 95, color: "bg-badge" },
-    ],
-    strengthAreas: ["Mathematical thinking", "Problem solving", "Technology"],
-    supportNeeded: ["Chemistry concepts", "Writing clarity"],
-    completedTasks: 24,
-    earnedCoins: 2450,
-  },
-  {
-    id: "2",
-    name: "Amit Kumar",
-    avatar: "AK",
-    class: "Grade 9B",
-    learningStreak: 8,
-    lastActive: "2 hours ago",
-    subjects: [
-      { name: "Physics", progress: 65, color: "bg-primary" },
-      { name: "Chemistry", progress: 72, color: "bg-secondary" },
-      { name: "Biology", progress: 55, color: "bg-accent" },
-      { name: "Math", progress: 78, color: "bg-badge" },
-      { name: "English", progress: 70, color: "bg-primary" },
-      { name: "History", progress: 82, color: "bg-secondary" },
-      { name: "Geography", progress: 60, color: "bg-accent" },
-      { name: "IT", progress: 75, color: "bg-badge" },
-    ],
-    strengthAreas: ["History", "Communication"],
-    supportNeeded: ["Biology", "Physics", "Practical Sciences"],
-    completedTasks: 18,
-    earnedCoins: 2100,
-  },
-  {
-    id: "3",
-    name: "Ravi Patel",
-    avatar: "RP",
-    class: "Grade 9A",
-    learningStreak: 5,
-    lastActive: "1 day ago",
-    subjects: [
-      { name: "Physics", progress: 45, color: "bg-primary" },
-      { name: "Chemistry", progress: 50, color: "bg-secondary" },
-      { name: "Biology", progress: 42, color: "bg-accent" },
-      { name: "Math", progress: 65, color: "bg-badge" },
-      { name: "English", progress: 55, color: "bg-primary" },
-      { name: "History", progress: 58, color: "bg-secondary" },
-      { name: "Geography", progress: 48, color: "bg-accent" },
-      { name: "IT", progress: 60, color: "bg-badge" },
-    ],
-    strengthAreas: ["Mathematics", "Logical thinking"],
-    supportNeeded: [
-      "Science concepts",
-      "Reading comprehension",
-      "Consistency",
-    ],
-    completedTasks: 10,
-    earnedCoins: 1200,
-  },
-  {
-    id: "4",
-    name: "Meera Singh",
-    avatar: "MS",
-    class: "Grade 9B",
-    learningStreak: 15,
-    lastActive: "15 min ago",
-    subjects: [
-      { name: "Physics", progress: 88, color: "bg-primary" },
-      { name: "Chemistry", progress: 85, color: "bg-secondary" },
-      { name: "Biology", progress: 90, color: "bg-accent" },
-      { name: "Math", progress: 92, color: "bg-badge" },
-      { name: "English", progress: 94, color: "bg-primary" },
-      { name: "History", progress: 86, color: "bg-secondary" },
-      { name: "Geography", progress: 88, color: "bg-accent" },
-      { name: "IT", progress: 91, color: "bg-badge" },
-    ],
-    strengthAreas: ["All subjects", "Consistent effort", "Leadership"],
-    supportNeeded: [],
-    completedTasks: 32,
-    earnedCoins: 3200,
-  },
-];
-
 export default function TeacherStudentProgressPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [sortBy, setSortBy] = useState<"name" | "streak" | "progress">("name");
+
+  useEffect(() => {
+    if (user?.id) {
+      loadStudentData();
+    }
+  }, [user?.id]);
+
+  const loadStudentData = async () => {
+    try {
+      // Get teacher's classes
+      const { data: classes, error: classError } = await supabase
+        .from('classes')
+        .select('id, name, grade')
+        .eq('teacher_id', user?.id)
+        .eq('is_active', true);
+
+      if (classError) throw classError;
+
+      // Get students from localStorage for each class
+      const savedStudents = JSON.parse(localStorage.getItem('classStudents') || '{}');
+      const allStudents: Student[] = [];
+
+      classes?.forEach(cls => {
+        const classStudents = savedStudents[cls.id] || [];
+        classStudents.forEach((student: any) => {
+          const progress = student.progress || 0;
+          allStudents.push({
+            id: student.id,
+            name: student.name,
+            avatar: student.avatar,
+            class: cls.name,
+            learningStreak: Math.floor(progress / 10), // Derive streak from progress
+            lastActive: student.lastActive || 'Recently',
+            subjects: [
+              { name: "Mathematics", progress: progress, color: "bg-primary" },
+              { name: "Science", progress: Math.max(0, progress - 10), color: "bg-secondary" },
+              { name: "English", progress: Math.max(0, progress - 5), color: "bg-accent" },
+              { name: "Social Studies", progress: Math.max(0, progress - 15), color: "bg-badge" },
+            ],
+            strengthAreas: progress > 70 ? ["Strong performance", "Consistent effort"] : ["Developing skills"],
+            supportNeeded: progress < 50 ? ["Additional practice", "Concept reinforcement"] : [],
+            completedTasks: Math.floor(progress / 5),
+            earnedCoins: student.coins || 0,
+          });
+        });
+      });
+
+      setStudents(allStudents);
+    } catch (error) {
+      console.error('Error loading student data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleViewStudent = (student: Student) => {
     setSelectedStudent(student);
@@ -236,18 +201,30 @@ export default function TeacherStudentProgressPage() {
         </div>
 
         {/* Students Grid */}
-        <div
-          className="slide-up grid grid-cols-1 md:grid-cols-2 gap-4"
-          style={{ animationDelay: "150ms" }}
-        >
-          {sortedStudents.map((student) => (
-            <StudentCard
-              key={student.id}
-              {...student}
-              onClick={() => handleViewStudent(student)}
-            />
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading student data...</p>
+          </div>
+        ) : students.length > 0 ? (
+          <div
+            className="slide-up grid grid-cols-1 md:grid-cols-2 gap-4"
+            style={{ animationDelay: "150ms" }}
+          >
+            {sortedStudents.map((student) => (
+              <StudentCard
+                key={student.id}
+                {...student}
+                onClick={() => handleViewStudent(student)}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <Users className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <h3 className="font-semibold text-xl mb-2">No Students Found</h3>
+            <p className="text-muted-foreground mb-6">Add students to your classes to see their progress here.</p>
+          </div>
+        )}
 
         {/* Detail Modal */}
         {selectedStudent && (

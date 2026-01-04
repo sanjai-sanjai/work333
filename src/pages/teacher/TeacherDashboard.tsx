@@ -16,9 +16,15 @@ import {
   Bell,
   Wifi,
   WifiOff,
+  Award,
+  TrendingUp,
+  Plus,
+  BookOpen,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { GameBadge } from "@/components/ui/game-badge";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface DashboardStats {
   studentsActive: number;
@@ -30,14 +36,15 @@ interface DashboardStats {
 export default function TeacherDashboard() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [stats, setStats] = useState<DashboardStats>({
-    studentsActive: 24,
-    pendingTasks: 12,
-    pendingRewards: 8,
-    villageImpact: 156,
+    studentsActive: 0,
+    pendingTasks: 0,
+    pendingRewards: 0,
+    villageImpact: 0,
   });
+  const [recentActivity, setRecentActivity] = useState([]);
 
   // Monitor online/offline status
   useEffect(() => {
@@ -58,6 +65,14 @@ export default function TeacherDashboard() {
   const schoolName = profile?.metadata?.school_name || "School";
 
   const primaryActions = [
+    {
+      id: "create-assignment",
+      icon: Plus,
+      label: t("teacher.createAssignment", { defaultValue: "Create Assignment" }),
+      description: t("teacher.createAssignmentDesc", { defaultValue: "Add new tasks for students" }),
+      color: "from-green-500 to-green-600",
+      onClick: () => navigate("/teacher/assignments/new"),
+    },
     {
       id: "scan-qr",
       icon: QrCode,
@@ -80,38 +95,91 @@ export default function TeacherDashboard() {
       label: t("teacher.studentProgress", { defaultValue: "Student Progress" }),
       description: t("teacher.studentProgressDesc", { defaultValue: "Monitor learning" }),
       color: "from-secondary to-secondary/80",
-      onClick: () => navigate("/teacher/student-progress"),
-    },
-    {
-      id: "village-impact",
-      icon: TreePine,
-      label: t("teacher.villageImpact", { defaultValue: "Village Impact" }),
-      description: t("teacher.villageImpactDesc", { defaultValue: "Community growth" }),
-      color: "from-badge to-badge/80",
-      onClick: () => navigate("/teacher/village-impact"),
+      onClick: () => navigate("/teacher/student/progress"),
     },
   ];
 
-  const recentActivity = [
-    {
-      student: "Priya Sharma",
-      action: t("teacher.completedPhysics", { defaultValue: "completed Physics lesson" }),
-      time: "5 min ago",
-      icon: Zap,
-    },
-    {
-      student: "Amit Kumar",
-      action: t("teacher.submittedVillage", { defaultValue: "submitted village task" }),
-      time: "15 min ago",
-      icon: TreePine,
-    },
-    {
-      student: "Ravi Patel",
-      action: t("teacher.earnedCoins", { defaultValue: "earned 50 PlayCoins" }),
-      time: "1 hour ago",
-      icon: Gift,
-    },
-  ];
+  // Calculate stats from teacher's actual students
+  useEffect(() => {
+    if (user?.id) {
+      calculateTeacherStats();
+    }
+  }, [user?.id]);
+
+  const calculateTeacherStats = async () => {
+    try {
+      // Get teacher's classes from Supabase
+      const { data: classes, error: classError } = await supabase
+        .from('classes')
+        .select('id, name')
+        .eq('teacher_id', user?.id)
+        .eq('is_active', true);
+
+      if (classError) throw classError;
+
+      // Get students from localStorage for each class
+      const savedStudents = JSON.parse(localStorage.getItem('classStudents') || '{}');
+      const savedAssignments = JSON.parse(localStorage.getItem('allAssignments') || '[]');
+      
+      let totalStudents = 0;
+      let activeStudents = 0;
+      let totalProgress = 0;
+      let studentActivities = [];
+      
+      // Calculate from actual classes and students
+      classes?.forEach(cls => {
+        const classStudents = savedStudents[cls.id] || [];
+        totalStudents += classStudents.length;
+        
+        classStudents.forEach(student => {
+          const progress = student.progress || 0;
+          totalProgress += progress;
+          
+          // Consider students with >0 progress as active
+          if (progress > 0) {
+            activeStudents++;
+            
+            // Generate recent activity for active students
+            studentActivities.push({
+              student: student.name,
+              action: `has ${progress}% progress in ${cls.name}`,
+              time: student.lastActive || 'Recently',
+              icon: progress > 50 ? Award : TrendingUp,
+            });
+          }
+        });
+      });
+      
+      // Calculate pending tasks based on assignments and students
+      const teacherAssignments = savedAssignments.filter(assignment => 
+        assignment.createdBy === user?.id || assignment.teacher_id === user?.id
+      );
+      const pendingTasks = teacherAssignments.length * totalStudents;
+      
+      // Calculate village impact based on average progress
+      const villageImpact = totalStudents > 0 ? Math.round(totalProgress / totalStudents) : 0;
+      
+      setStats({
+        studentsActive: activeStudents,
+        pendingTasks: Math.min(pendingTasks, 100),
+        pendingRewards: Math.round(activeStudents * 0.4),
+        villageImpact: villageImpact,
+      });
+      
+      // Set recent activity from actual student data
+      setRecentActivity(studentActivities.slice(0, 3));
+    } catch (error) {
+      console.error('Error calculating teacher stats:', error);
+      // Set empty stats if calculation fails
+      setStats({
+        studentsActive: 0,
+        pendingTasks: 0,
+        pendingRewards: 0,
+        villageImpact: 0,
+      });
+      setRecentActivity([]);
+    }
+  };
 
   return (
     <AppLayout role="teacher" title={t("teacher.dashboard", { defaultValue: "Dashboard" })}>
@@ -283,7 +351,7 @@ export default function TeacherDashboard() {
         <div className="slide-up space-y-3" style={{ animationDelay: "200ms" }}>
           <div className="flex items-center justify-between px-1">
             <h3 className="font-heading font-semibold text-foreground">
-              {t("teacher.recentActivity", { defaultValue: "Recent Activity" })}
+              {t("teacher.recentActivity", { defaultValue: "Student Progress" })}
             </h3>
             <GameBadge
               variant="primary"
@@ -294,28 +362,45 @@ export default function TeacherDashboard() {
             </GameBadge>
           </div>
           <div className="space-y-2">
-            {recentActivity.map((activity, index) => {
-              const IconComponent = activity.icon;
-              return (
-                <div
-                  key={index}
-                  className="flex items-center gap-3 rounded-lg bg-muted/30 p-3 border border-border/30 backdrop-blur-sm"
+            {recentActivity.length > 0 ? (
+              recentActivity.map((activity, index) => {
+                const IconComponent = activity.icon;
+                return (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3 rounded-lg bg-muted/30 p-3 border border-border/30 backdrop-blur-sm"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+                      <IconComponent className="h-4 w-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm">
+                        <span className="font-medium text-foreground">{activity.student}</span>{" "}
+                        <span className="text-muted-foreground">{activity.action}</span>
+                      </p>
+                    </div>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">
+                      {activity.time}
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-6">
+                <Users className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  No student activity yet. Add students to your classes to see their progress here.
+                </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-3"
+                  onClick={() => navigate('/teacher/classes')}
                 >
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
-                    <IconComponent className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm">
-                      <span className="font-medium text-foreground">{activity.student}</span>{" "}
-                      <span className="text-muted-foreground">{activity.action}</span>
-                    </p>
-                  </div>
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
-                    {activity.time}
-                  </span>
-                </div>
-              );
-            })}
+                  Manage Classes
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
